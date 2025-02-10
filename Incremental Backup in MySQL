@@ -1,0 +1,117 @@
+Incremental Backup in MySQL
+Backing up a MySQL database regularly is an important task of any system administrator to prevent data loss in case of application bugs or system failure. There are two types of backup full and incremental. First, a full backup contains a collection of all MySQL queries. Second, an incremental backup is a type of backup that only saves data that has been changed or created since It conducted the previous backup activity. Third, incremental backup saves storage space and uses fewer resources. So it is a recommended solution for cloud backup.
+
+This guide will explain how to perform incremental MySQL backup with Mysqldump and Binary log.
+
+Install MySQL Server 8
+First, install the MySQL server version 8 by running the following command:
+
+apt-get install mysql-server -y
+After installing the MySQL server, start the MySQL service and enable it to start at system reboot:
+
+systemctl start mysql systemctl enable mysql
+Enable Binary Logging
+First, you must enable binary logging to perform an incremental backup. You can enable it by editing the MySQL default configuration file:
+
+nano /etc/mysql/mysql.conf.d/mysqld.cnf
+Add or modify the following lines:
+
+log_bin = /var/log/mysql/mysql-bin.log expire_logs_days = 10
+Save and close the file, then restart the MySQL service to apply the changes:
+
+systemctl restart mysql
+Now, check the MySQL binary log with the following command:
+
+ls -l /var/log/mysql/
+You should see MySQL binary log file in the following output:
+
+-rw-r----- 1 mysql adm 6117 Jul 20 09:13 error.log -rw-r----- 1 mysql mysql 156 Jul 20 09:13 mysql-bin.000001 -rw-r----- 1 mysql mysql 32 Jul 20 09:13 mysql-bin.index
+As you can see, mysql-bin.000001 is a MySQL binary log file. All changes in all MySQL databases will be stored in this file.
+
+Create a Database and Table
+Next, we will create a test database and table and insert some rows in the table.
+
+First, connect to MySQL with the following command:
+
+mysql
+Once you are connected, create a database named mydb with the following command:
+
+mysql> CREATE DATABASE mydb;
+Next, change the database to mydb and create a new table named my_tbl:
+
+mysql> USE mydb; mysql> create table my_tbl( my_id INT NOT NULL AUTO_INCREMENT, my_field VARCHAR(100) NOT NULL, submission_date DATE, time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY ( my_id ) );
+Next, insert some rows with the following command:
+
+mysql> INSERT into my_tbl (my_field) VALUES ('val1'); mysql> INSERT into my_tbl (my_field) VALUES ('val2'); mysql> INSERT into my_tbl (my_field) VALUES ('val3');
+Next, exit from the MySQL shell:
+
+mysql> exit;
+Take a Full MySQL MySQL Backup
+Next, we will take a full backup of the current MySQL database. You can do it with the following command:
+
+mysqldump -uroot -p --all-databases --single-transaction --flush-logs --master-data=2 > full_backup.sql
+Where:
+
+--flush-logs will close current logs (mysql-bin.000001) and create a new one (mysql-bin.000002).
+
+You can check the new MySQL binary log file with the following command:
+
+ls -l /var/log/mysql/
+You should see the following output:
+
+-rw-r----- 1 mysql adm 6117 Jul 20 09:13 error.log -rw-r----- 1 mysql mysql 2036 Jul 20 09:25 mysql-bin.000001 -rw-r----- 1 mysql mysql 156 Jul 20 09:25 mysql-bin.000002 -rw-r----- 1 mysql mysql 64 Jul 20 09:25 mysql-bin.index
+Now, all database changes will be written in mysql-bin.000002 file.
+
+Next, login to MySQL again and insert more rows:
+
+mysql mysql> USE mydb; mysql> INSERT into my_tbl (my_field) VALUES ('val4'); mysql> INSERT into my_tbl (my_field) VALUES ('val5'); mysql> INSERT into my_tbl (my_field) VALUES ('val6'); mysql> exit;
+We have new database changes saved in the file mysql-bin.000002 after the full backup.
+
+Take an Incremental MySQL Backup
+To take an incremental backup, you must flush the binary log and save the binary logs created from the last full backup.
+
+To flush the binary log, run the following command:
+
+mysqladmin -uroot -p flush-logs
+This will close the mysql-bin.000002 file and create a new one. You can check it with the following command:
+
+ls -l /var/log/mysql/
+You should see the following output:
+
+-rw-r----- 1 mysql adm 6117 Jul 20 09:13 error.log -rw-r----- 1 mysql mysql 2036 Jul 20 09:25 mysql-bin.000001 -rw-r----- 1 mysql mysql 1097 Jul 20 09:27 mysql-bin.000002 -rw-r----- 1 mysql mysql 156 Jul 20 09:27 mysql-bin.000003 -rw-r----- 1 mysql mysql 96 Jul 20 09:27 mysql-bin.index
+You can also check the current state of the table with the following command:
+
+mysql mysql> use mydb; mysql> select * from my_tbl;
+You should see the following output:
+
++-------+----------+-----------------+---------------------+ | my_id | my_field | submission_date | time_created | +-------+----------+-----------------+---------------------+ | 1 | val1 | NULL | 2021-07-20 09:23:25 | | 2 | val2 | NULL | 2021-07-20 09:23:30 | | 3 | val3 | NULL | 2021-07-20 09:23:35 | | 4 | val4 | NULL | 2021-07-20 09:26:55 | | 5 | val5 | NULL | 2021-07-20 09:27:00 | | 6 | val6 | NULL | 2021-07-20 09:27:06 | +-------+----------+-----------------+---------------------+
+Delete a MySQL Database and Restore it From Incremental Backup
+Next, login to MySQL again and delete a mydb database with the following command:
+
+mysql> drop database mydb;
+Next, create a mydb database again with the following command:
+
+mysql> create database mydb; mysql> exit;
+Next, restore the MySQL data from the full_backup.sql:
+
+mysql -u root -p mydb < full_backup.sql
+Now, login to MySQL shell and check the content of the table:
+
+mysql mysql> use mydb; mysql> select * from my_tbl;
+You should see just three rows:
+
++-------+----------+-----------------+---------------------+ | my_id | my_field | submission_date | time_created | +-------+----------+-----------------+---------------------+ | 1 | val1 | NULL | 2021-07-20 09:23:25 | | 2 | val2 | NULL | 2021-07-20 09:23:30 | | 3 | val3 | NULL | 2021-07-20 09:23:35 | +-------+----------+-----------------+---------------------+ mysql> exit;
+You will need to restore the MySQL data from the binary log saved in the mysql-bin.000002 file. Run the following command to restore the incremental backup.
+
+mysqlbinlog /var/log/mysql/mysql-bin.000002 | mysql -uroot -p mydb
+Now, login to MySQL again and check the content of the table:
+
+mysql mysql> use mydb; mysql> select * from my_tbl;
+You should see that all rows are restored:
+
++-------+----------+-----------------+---------------------+ | my_id | my_field | submission_date | time_created | +-------+----------+-----------------+---------------------+ | 1 | val1 | NULL | 2021-07-20 09:23:25 | | 2 | val2 | NULL | 2021-07-20 09:23:30 | | 3 | val3 | NULL | 2021-07-20 09:23:35 | | 4 | val4 | NULL | 2021-07-20 09:26:55 | | 5 | val5 | NULL | 2021-07-20 09:27:00 | | 6 | val6 | NULL | 2021-07-20 09:27:06 | +-------+----------+-----------------+---------------------+
+Now, exit from MySQL with the following command:
+
+mysql> exit;
+Conclusion
+The above guide taught you how to perform incremental backup in MySQL using binary log and Mysqldump. It is always recommended to save the binary log on some remote location. So you can restore the complete database in the event of system failure.
