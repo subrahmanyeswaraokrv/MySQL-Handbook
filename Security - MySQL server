@@ -1,4 +1,6 @@
-
+Subrahmanyeswarao Karri:
+Sr Data Architect | MongoDB |MySQL| MS SQL | Influx | PostgreSQL
+----------------------------------------------------------------
 Secure MySQL server:
 ========================
 As the database is a crucial part of an application, you need to secure it. MySQL helps you do that by providing the mysql_secure_installation command.
