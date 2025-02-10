@@ -1,0 +1,61 @@
+Subrahmanyeswarao Karri:
+Sr Data Architect | MongoDB |MySQL| MS SQL | Influx | PostgreSQL
+----------------------------------------------------------------
+Prerequisites
+To follow this tutorial, you will need the following:
+
+The latest Ubuntu server installed;
+An account with sudo privileges.
+#How to install MySQL on Ubuntu 22.04: Step-by-step
+Follow the below seven steps to install MySQL on Ubuntu 22.04. We will first upgrade all the system packages and then install, configure, and secure MySQL, after which we will create a new user and privileges on a newly created database. Lastly, we will also cover MySQL basic service management. Let’s dive right in.
+
+#Step 1: Install MySQL server on Ubuntu
+First, let’s update the list of packages and upgrade them:
+
+sudo apt update
+sudo apt upgrade
+As the system is upgraded, we can install the latest MySQL proposed by Ubuntu.
+
+sudo apt install mysql-server -y
+Note that the package installed is mysql-server. This will install both the MySQL server and the client. The -y at the end of the command allows us to proceed to the installation by automatically answering the installation procedure by answering yes.
+
+#Step 2: Start MySQL server
+Now that we have installed MySQL, we will start the service using the following command:
+
+sudo service mysql start
+We now check the status of the service:
+
+sudo service mysql status
+mysql status
+
+As we can see, MySQL is now up and running.
+
+#Step 3: Set initial MySQL root password
+By default, MySQL does not come with a password for the root account. We will now set one. This is a good security practice, which is also needed before using the MySQL secure installation script.
+
+Let’s first connect to the database using the MySQL client:
+
+sudo mysql
+sudo mysql
+
+Now that we are connected, we can set a password for the root account using the following command:
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mypassword';
+Once you set the password, the MySQL client can no longer connect using only the sudo mysql command.
+
+#Step 4: Secure MySQL server
+As the database is a crucial part of an application, you need to secure it. MySQL helps you do that by providing the mysql_secure_installation command.
+
+We will now launch the secure installation script:
+
+sudo mysql_secure_installation
+The screenshot below shows the different questions asked by MySQL. Fill in and adjust based on your needs:
+
+mysql secure installation
+
+Let’s reconnect to the server using the new root password set during the secure installation procedure.
+
+sudo mysql -u root -p
+You should now see the MySQL prompt:
+
+mysql -user root
