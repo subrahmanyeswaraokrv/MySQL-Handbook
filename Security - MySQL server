@@ -1,0 +1,54 @@
+
+Secure MySQL server:
+========================
+As the database is a crucial part of an application, you need to secure it. MySQL helps you do that by providing the mysql_secure_installation command.
+
+We will now launch the secure installation script:
+
+sudo mysql_secure_installation
+The screenshot below shows the different questions asked by MySQL. Fill in and adjust based on your needs:
+
+mysql secure installation
+
+Let’s reconnect to the server using the new root password set during the secure installation procedure.
+
+sudo mysql -u root -p
+You should now see the MySQL prompt:
+
+mysql -user root
+
+#Step 5: Add a new user
+The installation is now complete. In order to connect any application to your database, it is recommended to create a database and a specific user and grant that user access to this database. This allows us to manage our data better.
+
+We will create the user first:
+
+CREATE USER 'didier'@'localhost' IDENTIFIED WITH mysql_native_password BY '%$HmbKe#XeVtn8i%mX$Ha&v2on%crUWc';
+Please note that the user can only connect to the database via 'localhost'. If you want the user to be able to connect from anywhere, use % instead of localhost. Be aware that this is insecure as there is no restriction based on where clients can connect.
+
+We then flush all the privileges. This will refresh MySQL and allow us to use that user immediately.
+
+flush privileges;
+mysql user
+
+#Step 6: Create MySQL database and grant privileges
+We now proceed to create a MySQL database myapp with the following command:
+
+ create database myapp;
+We then grant the previously created user all the privileges on this database:
+
+grant all privileges on myapp.* to 'didier'@'localhost';
+mysql create database
+
+You can now do any operation on the database.
+
+#Step 7: Stop and restart MySQL
+While managing your application, you will need to stop or restart your MySQL database.
+
+Use the following command to stop MySQL:
+
+sudo service mysql stop
+To restart MySQL, use this command:
+
+sudo service mysql restart
+#Conclusion
+In this comprehensive seven-step tutorial, we've covered how to install MySQL on Ubuntu 22.04. MySQL is a fundamental component of the LAMP stack and an integral part of many web applications and platforms. You can get further information about MySQL in the official MySQL documentation.
