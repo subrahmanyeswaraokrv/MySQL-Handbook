@@ -1,0 +1,92 @@
+Subrahmanyeswarao Karri:
+Sr Data Architect | MongoDB |MySQL| MS SQL | Influx | PostgreSQL
+----------------------------------------------------------------
+Enable and Use Binary Log in MySQL/MariaDB
+In MySQL or MariaDB database, when you make any changes in the database, every event is logged. All events are stored in the binary log.
+
+In simple terms, the binary log is a file set containing information on data modifications made to a MySQL server instance. It has all the information, updates the database, deletes it, creates and deletes the table, and more.
+
+The binary log is very useful when you are using MySQL replication. In this case, a binary log will send the data from the master MySQL server to the slave server. You can also use the binary log to perform any recovery operations in MySQL.
+Requirements
+A server running Linux with MariaDB installed.
+
+A root password is set up in the server.
+
+Verify Binary Log
+Before starting, you will need to verify whether the bin-log option is turned on or not and what binary log format is used.
+
+To check it, first log in to MySQL with the following command:
+
+mysql
+Once login, run the following command to check the binary log status:
+
+MariaDB [(none)]> show variables like '%bin%';
+You should get the following output:
+
++-----------------------------------------+----------------------+ | Variable_name | Value | +-----------------------------------------+----------------------+ | bind_address | 127.0.0.1 | | binlog_annotate_row_events | ON | | binlog_cache_size | 32768 | | binlog_checksum | CRC32 | | binlog_commit_wait_count | 0 | | binlog_commit_wait_usec | 100000 | | binlog_direct_non_transactional_updates | OFF | | binlog_file_cache_size | 16384 | | binlog_format | MIXED | | binlog_optimize_thread_scheduling | ON | | binlog_row_image | FULL | | binlog_stmt_cache_size | 32768 | | encrypt_binlog | OFF | | gtid_binlog_pos | | | gtid_binlog_state | | | innodb_locks_unsafe_for_binlog | OFF | | log_bin | OFF | | log_bin_basename | | | log_bin_compress | OFF | | log_bin_compress_min_len | 256 | | log_bin_index | | | log_bin_trust_function_creators | OFF | | max_binlog_cache_size | 18446744073709547520 | | max_binlog_size | 1073741824 | | max_binlog_stmt_cache_size | 18446744073709547520 | | read_binlog_speed_limit | 0 | | sql_log_bin | ON | | sync_binlog | 0 | | wsrep_forced_binlog_format | NONE | +-----------------------------------------+----------------------+
+As you can see, the binary log is off in the MySQL server.
+
+Next, check whether the binary log is used or not with the following command:
+
+MariaDB [(none)]> show binary logs;
+You should see the following output:
+
+ERROR 1381 (HY000): You are not using binary logging
+Next, check the binary log data directory with the following command:
+
+MariaDB [(none)]> show variables like 'datadir';
+You should get the following output:
+
++---------------+-----------------+ | Variable_name | Value | +---------------+-----------------+ | datadir | /var/lib/mysql/ | +---------------+-----------------+ 1 row in set (0.003 sec)
+Enable Binary Log in MySQL
+You must edit the MySQL main configuration file to enable binary logging.
+
+nano /etc/mysql/mariadb.conf.d/50-server.cnf
+Add the following lines:
+
+log_bin = /var/log/mysql/mysql-bin.log expire_logs_days = 10 max_binlog_size = 100M binlog_format = mixed
+Save and close the file when you are finished. Next, restart the MySQL service to apply the changes.
+
+systemctl restart mariadb
+Now, connect to MySQL and verify the binary log status with the following command:
+
+MariaDB [(none)]> show variables like '%bin%';
+You should see that binary log is now enabled:
+
++-----------------------------------------+--------------------------------+ | Variable_name | Value | +-----------------------------------------+--------------------------------+ | bind_address | 127.0.0.1 | | binlog_annotate_row_events | ON | | binlog_cache_size | 32768 | | binlog_checksum | CRC32 | | binlog_commit_wait_count | 0 | | binlog_commit_wait_usec | 100000 | | binlog_direct_non_transactional_updates | OFF | | binlog_file_cache_size | 16384 | | binlog_format | MIXED | | binlog_optimize_thread_scheduling | ON | | binlog_row_image | FULL | | binlog_stmt_cache_size | 32768 | | encrypt_binlog | OFF | | gtid_binlog_pos | | | gtid_binlog_state | | | innodb_locks_unsafe_for_binlog | OFF | | log_bin | ON | | log_bin_basename | /var/log/mysql/mysql-bin | | log_bin_compress | OFF | | log_bin_compress_min_len | 256 | | log_bin_index | /var/log/mysql/mysql-bin.index | | log_bin_trust_function_creators | OFF | | max_binlog_cache_size | 18446744073709547520 | | max_binlog_size | 104857600 | | max_binlog_stmt_cache_size | 18446744073709547520 | | read_binlog_speed_limit | 0 | | sql_log_bin | ON | | sync_binlog | 0 | | wsrep_forced_binlog_format | NONE | +-----------------------------------------+--------------------------------+
+Next, check whether the binary log is used or not with the following command:
+
+MariaDB [(none)]> show binary logs;
+You should see the following output:
+
++------------------+-----------+ | Log_name | File_size | +------------------+-----------+ | mysql-bin.000001 | 328 | +------------------+-----------+ 1 row in set (0.000 sec)
+All binary log files are stored in the /var/log/mysql directory. You can check them with the following command:
+
+ls /var/log/mysql
+You should get the following output:
+
+error.log mysql-bin.000002 mysql-bin.000004 mysql-bin.000006 mysql-bin.000008 mysql-bin.index mysql-bin.000001 mysql-bin.000003 mysql-bin.000005 mysql-bin.000007 mysql-bin.000009
+Working with Binary Log
+The mysqlbinlog is a command-line tool used to view the content of the binary log in a human-readable format.
+
+For example, to view the content of mysql-bin.000001 binary file run the following command:
+
+mysqlbinlog --no-defaults /var/log/mysql/mysql-bin.000001
+You should get the following output:
+
+#210303 11:52:15 server id 1 end_log_pos 503 CRC32 0x7260a26e GTID 0-1-2 ddl /*!100001 SET @@session.gtid_seq_no=2*//*!*/; # at 503 #210303 11:52:15 server id 1 end_log_pos 596 CRC32 0x2b572f9f Query thread_id=38 exec_time=0 error_code=0 SET TIMESTAMP=1614772335/*!*/; create database testdb1 /*!*/; # at 596 #210303 11:53:26 server id 1 end_log_pos 619 CRC32 0xa1f8c5c4 Stop DELIMITER ; # End of log file ROLLBACK /* added by mysqlbinlog */; /*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/; /*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;
+As you can see, the above command will display a lot of data from all databases.
+
+In this case, you can use the -d option to specify the specific database and display the information of the given database.
+
+For example, run the following command to dump all the events of testdb database in the testdb.txt file.
+
+mysqlbinlog --no-defaults -d testdb /var/log/mysql/mysql-bin.000001 > testdb.txt
+If you want to display only SQL queries from the binary log file, run the following command:
+
+mysqlbinlog --no-defaults -s /var/log/mysql/mysql-bin.000001
+Sometimes, you do not want to log events in a binary log file, for example, a database recovery process. In that case, you can disable the binary log with the following command:
+
+mysqlbinlog --no-defaults -D /var/log/mysql/mysql-bin.000001
+Conclusion
+The above guide taught you how to enable the binary log in MySQL. You also learned how to view a binary log with the mysqlbinlog command. I hope this will help you in your day-to-day operations.
