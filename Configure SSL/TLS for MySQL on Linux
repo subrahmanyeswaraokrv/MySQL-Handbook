@@ -1,0 +1,128 @@
+Subrahmanyeswarao Karri:
+Sr Data Architect | MongoDB |MySQL| MS SQL | Influx | PostgreSQL
+----------------------------------------------------------------
+Configure SSL/TLS for MySQL on Linux
+MySQL is a free, open-source and one of the most popular database system around the world. It is very popular because of its functionality, usability and features. By default, MySQL is configured to allow connections only from the local system. If you want to connect to the MySQL server from the remote system then it would be recommended to secure it with SSL/TLS. Enabling SSL/TLS will encrypt the data being sent to and from the database.
+
+Requirements
+A server running Ubuntu operating system.
+
+A root password is setup on your server.
+
+Install MySQL Server
+First, you will need to install the MySQL server in your system. By default, the MySQL package is available in the Ubuntu 20.04 default repository. You can install it using the following command:
+
+apt-get install mysql-server -y
+This will install the MySQL server version 8.0 to your system. You can check the installed version of MySQL with the following command:
+
+mysql -V
+You should get the following output:
+
+mysql Ver 8.0.23-0ubuntu0.20.04.1 for Linux on x86_64 ((Ubuntu))
+To start and stop the MySQL service, run the following command:
+
+systemctl stop mysql systemctl start mysql
+You can verify the status of MySQL with the following command:
+
+systemctl status mysql
+Setup MySQL Root Password
+Next, you will need to secure the MySQL installation and set the MySQL root password. You can do it with the following script:
+
+mysql_secure_installation
+You will be asked several questions as shown below:
+
+Press y|Y for Yes, any other key for No: Y Please enter 0 = LOW, 1 = MEDIUM and 2 = STRONG: 0 New password: Re-enter new password: Estimated strength of the password: 50 Do you wish to continue with the password provided?(Press y|Y for Yes, any other key for No) : Y Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
+At this point, MySQL is secured and root password is set. You can now proceed to the next step.
+
+Verify SSL/TLS Status
+Before starting, you will need to verify whether the SSL/TLS is enabled or not in MySQL.
+
+First, log in to MySQL with the following command:
+
+mysql -u root -p
+Once login, run the following command to check the SSL/TLS status:
+
+mysql> SHOW VARIABLES LIKE '%ssl%';
+You should see the following output:
+
++-------------------------------------+-----------------+ | Variable_name | Value | +-------------------------------------+-----------------+ | admin_ssl_ca | | | admin_ssl_capath | | | admin_ssl_cert | | | admin_ssl_cipher | | | admin_ssl_crl | | | admin_ssl_crlpath | | | admin_ssl_key | | | have_openssl | YES | | have_ssl | YES | | mysqlx_ssl_ca | | | mysqlx_ssl_capath | | | mysqlx_ssl_cert | | | mysqlx_ssl_cipher | | | mysqlx_ssl_crl | | | mysqlx_ssl_crlpath | | | mysqlx_ssl_key | | | performance_schema_show_processlist | OFF | | ssl_ca | ca.pem | | ssl_capath | | | ssl_cert | server-cert.pem | | ssl_cipher | | | ssl_crl | | | ssl_crlpath | | | ssl_fips_mode | OFF | | ssl_key | server-key.pem | +-------------------------------------+-----------------+ 25 rows in set (0.04 sec)
+As you can see, both have_openssl and have_ssl values are disabled.
+
+You can also verify the current connection status with the following command:
+
+mysql> \s
+You should see the following output:
+
+-------------- mysql Ver 8.0.23-0ubuntu0.20.04.1 for Linux on x86_64 ((Ubuntu)) Connection id: 22 Current database: Current user: root@localhost SSL: Not in use Current pager: stdout Using outfile: '' Using delimiter: ; Server version: 8.0.23-0ubuntu0.20.04.1 (Ubuntu) Protocol version: 10 Connection: Localhost via UNIX socket Server characterset: utf8mb4 Db characterset: utf8mb4 Client characterset: utf8mb4 Conn. characterset: utf8mb4 UNIX socket: /var/run/mysqld/mysqld.sock Binary data as: Hexadecimal Uptime: 5 hours 38 min 2 sec Threads: 2 Questions: 61 Slow queries: 0 Opens: 288 Flush tables: 3 Open tables: 207 Queries per second avg: 0.003 --------------
+As you can see, SSL connection is not in use in the current connection.
+
+Now, exit from the MySQL shell with the following command:
+
+mysql> EXIT;
+Create SSL/TLS Certificates
+In order to enable the SSL/TLS, you will need to generate SSL/TLS certificate and key file first. You can generate them using the mysql_ssl_rsa_setup utility.
+
+Now, run this utility as shown below to generate the SSL/TLS certificate and key
+
+mysql_ssl_rsa_setup --uid=mysql
+By default all certificate and key files are store in MySQL's data directory located at /var/lib/mysql. You can check them with the following command:
+
+ls -l /var/lib/mysql/*.pem
+You should see all files in the following output:
+
+-rw------- 1 mysql mysql 1680 Feb 18 08:31 /var/lib/mysql/ca-key.pem -rw-r--r-- 1 mysql mysql 1112 Feb 18 08:31 /var/lib/mysql/ca.pem -rw-r--r-- 1 mysql mysql 1112 Feb 18 08:31 /var/lib/mysql/client-cert.pem -rw------- 1 mysql mysql 1676 Feb 18 08:31 /var/lib/mysql/client-key.pem -rw------- 1 mysql mysql 1680 Feb 18 08:31 /var/lib/mysql/private_key.pem -rw-r--r-- 1 mysql mysql 452 Feb 18 08:31 /var/lib/mysql/public_key.pem -rw-r--r-- 1 mysql mysql 1112 Feb 18 08:31 /var/lib/mysql/server-cert.pem -rw------- 1 mysql mysql 1680 Feb 18 08:31 /var/lib/mysql/server-key.pem
+You can now use those files to enable the use of SSL on your MySQL instance.
+
+Enable SSL Connections on MySQL
+You can enable the SSL/TLS by just restarting the MySQL service. You can restart it with the following command:
+
+systemctl restart mysql
+Now, log in to MySQL shell and check the status with the following command:
+
+mysql -u root -p --ssl-mode=required mysql> SHOW VARIABLES LIKE '%ssl%';
+You should see that both have_openssl and have_ssl variables are now enabled.
+
++-------------------------------------+-----------------+ | Variable_name | Value | +-------------------------------------+-----------------+ | admin_ssl_ca | | | admin_ssl_capath | | | admin_ssl_cert | | | admin_ssl_cipher | | | admin_ssl_crl | | | admin_ssl_crlpath | | | admin_ssl_key | | | have_openssl | YES | | have_ssl | YES | | mysqlx_ssl_ca | | | mysqlx_ssl_capath | | | mysqlx_ssl_cert | | | mysqlx_ssl_cipher | | | mysqlx_ssl_crl | | | mysqlx_ssl_crlpath | | | mysqlx_ssl_key | | | performance_schema_show_processlist | OFF | | ssl_ca | ca.pem | | ssl_capath | | | ssl_cert | server-cert.pem | | ssl_cipher | | | ssl_crl | | | ssl_crlpath | | | ssl_fips_mode | OFF | | ssl_key | server-key.pem | +-------------------------------------+-----------------+ 25 rows in set (0.00 sec)
+Now, check the current connection status with the following command:
+
+mysql> \s
+You should see the SSL cipher in the following output.
+
+mysql Ver 8.0.23-0ubuntu0.20.04.1 for Linux on x86_64 ((Ubuntu)) Connection id: 9 Current database: Current user: root@localhost SSL: Cipher in use is TLS_AES_256_GCM_SHA384 Current pager: stdout Using outfile: '' Using delimiter: ; Server version: 8.0.23-0ubuntu0.20.04.1 (Ubuntu) Protocol version: 10 Connection: Localhost via UNIX socket Server characterset: utf8mb4 Db characterset: utf8mb4 Client characterset: utf8mb4 Conn. characterset: utf8mb4 UNIX socket: /var/run/mysqld/mysqld.sock Binary data as: Hexadecimal Uptime: 2 min 9 sec Threads: 2 Questions: 10 Slow queries: 0 Opens: 117 Flush tables: 3 Open tables: 36 Queries per second avg: 0.077 --------------
+The above output clearly indicates that your current MySQL session uses SSL to secure the connection.
+
+Configure MySQL For Secure Connection and Remote Login
+By default, MySQL is configured to login from the localhost and allow an unsecure connection. So you will need to configure it to allow remote login and accept only secure connection.
+
+You can do it by editing the MySQL configuration file:
+
+nano /etc/mysql/mysql.conf.d/mysqld.cnf
+Add / change the following lines:
+
+[mysqld] require_secure_transport = ON bind-address = 0.0.0.0
+Save and close the file then restart MySQL to apply the changes:
+
+systemctl restart mysql
+Next, you will need to create a new user for remote MySQL client. First, login to MySQL with the following command:
+
+mysql -u root -p
+Once login, create a new user and database for remote client with the following command:
+
+mysql> CREATE DATABASE userdb; mysql> CREATE USER 'user1'@'remote-client-ip' IDENTIFIED BY 'secure-password' REQUIRE SSL;
+Next, grant all the privileges to the userdb with the following command:
+
+mysql> GRANT ALL PRIVILEGES ON userdb.* TO 'user1'@'remote-client-ip' WITH GRANT OPTION;
+Next, flush the privileges and exit from the MySQL with the following command:
+
+mysql> FLUSH PRIVILEGES; mysql> EXIT;
+Next, go to the client system and connect your MySQL server with the following command:
+
+mysql -h your-mysql-server-ip -u user1 -p
+Once connected, verify the SSL status with the following command:
+
+mysql> \s
+You should see the following output:
+
+-------------- mysql Ver 8.0.23-0ubuntu0.20.04.1 for Linux on x86_64 ((Ubuntu)) Connection id: 11 Current database: Current user: user1@ubuntu2004 SSL: Cipher in use is TLS_AES_256_GCM_SHA384 Current pager: stdout Using outfile: '' Using delimiter: ; Server version: 8.0.23-0ubuntu0.20.04.1 (Ubuntu) Protocol version: 10 Connection: 104.245.36.53 via TCP/IP Server characterset: utf8mb4 Db characterset: utf8mb4 Client characterset: utf8mb4 Conn. characterset: utf8mb4 TCP port: 3306 Binary data as: Hexadecimal Uptime: 43 min 18 sec Threads: 3 Questions: 20 Slow queries: 0 Opens: 148 Flush tables: 3 Open tables: 67 Queries per second avg: 0.007 --------------
+Conclusion
+In the above guide, you learned how to secure MySQL connection with SSL/TLS. Now, your data will be encrypted when you connect to the MySQL server.
