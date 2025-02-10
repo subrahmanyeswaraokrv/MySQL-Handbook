@@ -1,0 +1,38 @@
+MySQL Upgrade  5.7 to 8.0 on Ubuntu
+#Databases
+Learn how to safely upgrade your database server from MySQL 5.7 to MySQL 8.0 on Ubuntu.
+
+Published by Mark van Eijk on January 12, 2023 · 1 minute read
+
+Backup existing databases (don't skip)
+Remove current MySQL version
+Install essential packages and add apt key
+Add MySQL 8.0 repository source
+Update apt repositories & install MySQL 8.0
+Check if MySQL 8.0 is installed
+Help! MySQL doesn't start anymore
+#Backup existing databases (don't skip)
+Don't skip this part, it can save you a lot of trouble when something goes wrong!
+
+Backup the databases in separate files or choose to backup your databases in a single file. Possibly the latter is easier when needing to import the backup and importing it all at once.
+
+#Remove current MySQL version
+sudo apt purge mysql-*
+#Install essential packages and add apt key
+sudo apt install -y dirmngr # essential package for adding apt key
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+#Add MySQL 8.0 repository source
+echo "deb http://repo.mysql.com/apt/ubuntu $(lsb_release -sc) mysql-8.0" | sudo tee /etc/apt/sources.list.d/mysql-8.0.list
+#Update apt repositories & install MySQL 8.0
+sudo apt-get update
+sudo apt-get install -y mysql-server mysql-client
+#Check if MySQL 8.0 is installed
+When everything goes well, you're done. MySQL version 8.0 is installed. You can verify this by checking the status of the MySQL daemon and the MySQL version:
+
+sudo service mysql status
+This should output that MySQL is active (running). To make sure you're on the new version, check the MySQL version:
+
+sudo mysql --version
+Should show something like:
+
+mysql  Ver 8.0.31 for Linux on x86_64 (MySQL Community Server - GPL)
