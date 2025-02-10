@@ -59,3 +59,7 @@ sudo mysql -u root -p
 You should now see the MySQL prompt:
 
 mysql -user root
+Now that we are connected, we can set a password for the root account using the following command:
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mypassword';
+Once you set the password, the MySQL client can no longer connect using only the sudo mysql command.
