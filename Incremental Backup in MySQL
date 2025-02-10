@@ -1,3 +1,6 @@
+Subrahmanyeswarao Karri:
+Sr Data Architect | MongoDB |MySQL| MS SQL | Influx | PostgreSQL
+----------------------------------------------------------------
 Incremental Backup in MySQL
 Backing up a MySQL database regularly is an important task of any system administrator to prevent data loss in case of application bugs or system failure. There are two types of backup full and incremental. First, a full backup contains a collection of all MySQL queries. Second, an incremental backup is a type of backup that only saves data that has been changed or created since It conducted the previous backup activity. Third, incremental backup saves storage space and uses fewer resources. So it is a recommended solution for cloud backup.
 
