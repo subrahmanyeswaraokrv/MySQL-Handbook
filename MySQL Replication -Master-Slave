@@ -1,0 +1,119 @@
+Requirements
+Two server running Ubuntu 20.04.
+
+A root password is set up on each server.
+
+Install MySQL Server on Both Nodes
+First, you will need to install the MySQL server on both nodes. You can install it with the following command:
+
+apt-get install mysql-server -y
+Once the installation has been completed, you will need to set a MySQL root password on both nodes.
+
+You can set it with the following command:
+
+mysql_secure_installation
+You will be asked to set a root password as shown below:
+
+Press y|Y for Yes, any other key for No: Press-Enter Please set the password for root here. New password: Re-enter new password: Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Y Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
+Configure MySQL on Master Node
+By default, MySQL listens on the localhost and doesn't allow connection from the remote system. So you will need to configure MySQL to listen on the public IP.
+
+To do so, edit the MySQL default configuration file:
+
+nano /etc/mysql/mysql.conf.d/mysqld.cnf
+Find the following line:
+
+bind-address = 127.0.0.1
+Replaced it with the following line:
+
+bind-address = Your-Master-IP
+Next, uncomment the following line:
+
+server-id = 1
+Next, add the following lines at the end of the file:
+
+log_bin = /var/log/mysql/mysql-bin.log log_bin_index =/var/log/mysql/mysql-bin.log.index relay_log = /var/log/mysql/mysql-relay-bin relay_log_index = /var/log/mysql/mysql-relay-bin.index
+Save and close the file then restart the MySQL service to apply the changes:
+
+systemctl restart mysql
+Create a Replication User on Master Node
+Next, you will need to create a new user for replication and grant privileges to the replication slave.
+
+First, connect to the MySQL shell with the following command:
+
+mysql -u root -p
+Once login, create a replication user with the following command:
+
+mysql> CREATE USER 'replication_user'@'your-slave-ip' IDENTIFIED BY 'password';
+Next, grant all privileges to replication slave with the following command:
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'your-slave-ip';
+Next, flush the privileges with the following command:
+
+mysql> FLUSH PRIVILEGES;
+Next, verify the Master status with the following command:
+
+mysql> SHOW MASTER STATUS\G
+You should get the following output:
+
+*************************** 1. row *************************** File: mysql-bin.000001 Position: 900 Binlog_Do_DB: Binlog_Ignore_DB: Executed_Gtid_Set: 1 row in set (0.00 sec)
+From the above output, note down the mysql-bin.000001 value and the Position ID 900. You will need both to set up a slave server.
+
+Configure the Slave Node
+First, edit the MySQL default configuration file with the following comamnd:
+
+nano /etc/mysql/mysql.conf.d/mysqld.cnf
+Find the following line:
+
+bind-address = 127.0.0.1
+Replace it with the following line:
+
+bind-address = Slave-server-ip
+Next, uncomment and change the server-id value:
+
+server-id = 2
+Next, add the following lines at the end of the file:
+
+log_bin = /var/log/mysql/mysql-bin.log log_bin_index =/var/log/mysql/mysql-bin.log.index relay_log = /var/log/mysql/mysql-relay-bin relay_log_index = /var/log/mysql/mysql-relay-bin.index
+Finally, restart the MySQL service to apply the changes:
+
+systemctl restart mysql
+Next, log in to MySQL with the following command:
+
+mysql -u root -p
+Once login, stop the slave server to connect to the master server:
+
+mysql> STOP SLAVE;
+Run the following command to allow the slave server to replicate the Master server:
+
+mysql> CHANGE MASTER TO MASTER_HOST ='your-master-ip', MASTER_USER ='replication_user', MASTER_PASSWORD ='password', MASTER_LOG_FILE = 'mysql-bin.000001', MASTER_LOG_POS = 900;
+Next, start the SLAVE with the following command:
+
+mysql> START SLAVE;
+Test the Master-Slave Replication
+At this point, Master-Slave replication is configured. Now it's time to test whether the replication works or not.
+
+To do so, we will create a database on the Master Node and verify whether it will be replicated on the Slave Node.
+
+First, log in to the MySQL on the Master Node:
+
+mysql -u root -p
+Once you are log in, create a database with the following command:
+
+mysql> CREATE DATABASE newdb;
+Next, exit from the MySQL with the following command:
+
+mysql> EXIT;
+Next, log in to the MySQL on the Slave Node:
+
+mysql -u root -p
+Once you are log in, list all the databases:
+
+mysql> SHOW DATABASES;
+You should see the following output:
+
++--------------------+ | Database | +--------------------+ | information_schema | | mysql | | newdb | | performance_schema | | sys | +--------------------+
+As you can see, the newdb database has been replicated to the Slave Node.
+
+Conclusion
+Congratulations! you have successfully set up a MySQL Master-Slave replication on the Ubuntu 20.04 server. You can now use this setup in the production environment to save your data in the event of failure.
