@@ -1,0 +1,108 @@
+
+Reasons for corrupted tables in MySQL
+There are different reasons for the tables in MySQL to become corrupt. Some most common issues are:
+
+There might be a software bug in the MySQL code
+
+The MySQL server pause in the middle of the process
+
+The hardware of the system fails
+
+There may be an external program modifying a table, and at the same time, the server is also modifying it.
+
+The computer suddenly stops working or shuts down
+
+How to fix corrupted tables in MySQL
+1) Make a backup of the data:
+Before fixing the corrupted table, it is best to make a backup of the data directory, which will reduce the risk of losing the data.
+
+To create a backup file, first, stop the MySQL service. The following code will help you to stop the MySQL service.
+
+sudo systemcti stop mysql
+The new data directory is now holding the data of the corrupted. If you are using the Ubuntu system, then the data will by default save as /var/lib/mysql:
+
+Investigate whether the table is corrupted or not:
+
+Now we have to check whether the table is corrupted or not. To clear the doubt, use the command CHECK-TABE if the table uses MyISAM storage.
+
+The following code is used to run the check-table statement:
+
+After running this command, a statement will appear telling whether the table is corrupted or not. If the statement shows that the table is corrupted, follow the steps below.
+
+Repair the corrupted table:
+
+The corrupted table can be easily repaired with the REPAIR-TABLE command if the table is using the MyISAM engine.
+
+The following code is used to run the REPAIR_TABLE statement:
+
+Here is a dummy result that will show you as output after running the above code:
+
+But if the table is still corrupted, there are other suggested methods by MySQL.
+
+How to fix the corrupted table in MySQL present in InnoDB
+
+After version 5.5, MySQL uses InnoDB as a default storage engine for the new tables created in the MySQL database. The InnoDB has a plus point: the tables inside this storage engine do not get corrupted easily. However, the InnoDB gives an advantage to self-repair most of the issues just by restarting the server.
+
+If the table gets corrupted, it is very easily be repaired.
+
+Following are the reasons for the tables being corrupt under the InnoDB storage engine:
+
+The server of MySQL crashed after a reboot
+
+The primary platform has some bugs
+
+Hardware failure
+
+When the table becomes corrupted, one cannot access read or access the data inside the table. And if you try so, the server of MySQL can be crashed
+
+There are two methods to fix the corrupted InnoDB tables in MySQL
+
+Repair the corrupted InnoDB table manually:
+
+Following are the steps that will help you repair the corrupted table manually.
+
+Step 1: Restart the service
+
+Restart the MySQL service and check whether you have access to the server or not. Follow the steps below to do so.
+
+Click Windows+R keys to open the run window.
+
+Type msc and then press ENTER key.
+
+There will be a SERVICES window that appears, right-click on MySQL services, and press RESTART.
+
+Step 2: Force InnoDB recovery
+
+This step will regain access to the corrupted tables through the MySQL database. Enable the Innodb_force_recovery option in MySQL configuration file my.cnf. Follow the steps:
+
+Open my.cnf file, in the [mysqld] section write:
+
+Save and close my.cnf file
+
+Restart the MySQL service again
+
+Step 3: Drop the corrupted table
+
+When you have access to the corrupted table, drop the data of that table in a new file using the following command.
+
+If you want to insert multiple tables in the above code, use whitespace between the names of the tables.
+
+Now put the corrupted table of the database using the following command.
+
+Step 4: Restore the table
+
+In this step, we will restore the newly created file in which we dropped the data of the corrupted table using the following command.
+
+Step 5: Restart MySQL in normal mode
+
+Now that we repaired the corrupted table stop the MySQL service and disable Innodb_force_recovery using the following code again in the [mysqld] section.
+
+Restart the MySQL services in the normal mode.
+
+Note: If you have access to the MySQL server, skip the first two steps mentioned above. Also, skip the last step and stop and restart the server.
+
+Conclusion
+
+Corruption in the MySQL table can corrupt and make data within it unreadable. This kind of corruption, if not resolved within time, may result in server crashes, unexpected downtime, and loss of data. Manual processes to repair tables can be tiresome and may lose some data, making them unreliable.
+
+To repair tables on the InnoDB storage engine and restore it to its original functioning state, you can use software that repairs MySQL databases called Stellar Repair for MySQL. This software works on both Windows operating systems and Linux-based computers, and not only can it repair InnoDB tables, but MyISAM tables as well. Use this file repair program to fix problems with your database.
