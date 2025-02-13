@@ -38,3 +38,32 @@ root@ dev-subrahmanym-database:/# sudo systemctl status mysql
      Active: active (running) since Thu 2025-02-13 13:04:08 IST; 22s ago
 
 =============================================================
+[ERROR] [MY-010273] [Server] Could not create unix socket lock file /var/run/mysqld/>
+Feb 13 17:38:34 dev-mongo-cluster mysqld[1691317]: 2025-02-13T12:08:34.049143Z 0 [ERROR] [MY-010268] [Server] Unable to setup unix socket lock file.
+Feb 13 17:38:34 dev-mongo-cluster mysqld[1691317]: 2025-02-13T12:08:34.049465Z 0 [ERROR] [MY-010119] [Server] Aborting
+Feb 13 17:38:34 dev-mongo-cluster mysqld[1691314]: 2025-02-13T12:08:34.049592Z 0 [ERROR] [MY-010946] [Server] Failed to start mysqld daemon. Check mysqld error log.
+Feb 13 17:38:34 dev-mongo-cluster systemd[1]: mysql.service: Control process exited, code=exited, status=1/FAILURE
+Feb 13 17:38:35 dev-mongo-cluster mysqld[1691317]: 2025-02-13T12:08:35.518210Z 0 [System] [MY-010910] [Server] /opt/mysql/bin/mysqld: Shutdown complete (mysqld 8.0.2>
+Feb 13 17:38:35 dev-mongo-cluster systemd[1]: mysql.service: Failed with result 'exit-code'.
+Feb 13 17:38:35 dev-mongo-cluster systemd[1]: Failed to start MySQL Community Server.
+Solution:
+----------
+root@dev-mongo-cluster:/mysql# sudo mkdir /var/run/mysqld
+root@dev-mongo-cluster:/mysql# sudo chmod 755 /var/run/mysqld
+root@dev-mongo-cluster:/mysql# sudo chown -R mysql:mysql  /var/run/mysqld
+root@dev-mongo-cluster:/mysql# sudo systemctl restart  mysql
+root@dev-mongo-cluster:/mysql# systemctl status mysql.service
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2025-02-13 17:40:48 IST; 5s ago
+       Docs: https://dev.mysql.com/doc/refman/en/
+    Process: 1691403 ExecStartPre=/bin/mkdir -m 755 -p /mysql/data (code=exited, status=0/SUCCESS)
+    Process: 1691404 ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid (code=exited, status=0/SUCCESS)
+    Process: 1691453 ExecStartPost=/bin/chown -R mysql:mysql /mysql/data (code=exited, status=0/SUCCESS)
+   Main PID: 1691406 (mysqld)
+      Tasks: 38 (limit: 9351)
+     Memory: 351.8M
+        CPU: 877ms
+     CGroup: /system.slice/mysql.service
+             └─1691406 /opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid
+
