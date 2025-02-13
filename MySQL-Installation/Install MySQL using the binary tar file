@@ -484,8 +484,6 @@ root@ dev-subrahmanym-database:/mysql# -----------------------------------------
 root@ dev-subrahmanym-database:/mysql# Check the MySQL error log for the temporary root password:
 root@ dev-subrahmanym-database:/mysql# ----------------------------------------------------------
 root@ dev-subrahmanym-database:/mysql# To see the temporary password generated for the root user:
-root@ dev-subrahmanym-database:/mysql# sudo tail -n 50 /mnt/mysql-logs/mysql-error.log
-tail: cannot open '/mnt/mysql-logs/mysql-error.log' for reading: No such file or directory
 root@ dev-subrahmanym-database:/mysql# sudo tail -n 50 /mysql/logs/mysql-error.log
 2025-02-13T07:25:30.470439Z 0 [System] [MY-013169] [Server] /opt/mysql/bin/mysqld (mysqld 8.0.28) initializing of server in progress as process 1588609
 2025-02-13T07:25:30.483660Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
@@ -534,7 +532,6 @@ root@ dev-subrahmanym-database:/mysql# systemctl status mysql.service
     Process: 1588837 ExecStartPre=/bin/mkdir -m 755 -p /mysql/data (code=exited, status=0/SUCCESS)
     Process: 1588838 ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/var/run/mysqld/mysqld.pid (code=exited, status=1/FAIL>
         CPU: 949ms
-
 Feb 13 13:00:55  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:55.903469Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
 Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.128537Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
 Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.411948Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
@@ -558,7 +555,6 @@ root@ dev-subrahmanym-database:/mysql# sudo systemctl enable mysql
 root@ dev-subrahmanym-database:/mysql# sudo systemctl start mysql
 Job for mysql.service failed because the control process exited with error code.
 See "systemctl status mysql.service" and "journalctl -xeu mysql.service" for details.
-root@ dev-subrahmanym-database:/mysql#
 root@ dev-subrahmanym-database:/mysql#
 root@ dev-subrahmanym-database:/mysql# systemctl status mysql.service
 × mysql.service - MySQL Community Server
