@@ -1,0 +1,40 @@
+root@dev-shared-database:/mysql/data# mysql -u root -p
+Enter password:
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (111)
+--
+Sollution:
+1: root@dev-shared-database:/var/run/mysqld# sudo find / -name "my.cnf" 2>/dev/null
+2: root@dev-shared-database:/var/run/mysqld# sudo vi /etc/mysql/my.cnf
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+datadir = /mysql/data
+pid-file = /mysql/mysqld.pid
+user = mysql
+
+[client]
+socket = /var/run/mysqld/mysqld.sock
+
+3: chown -R mysql:mysql  /etc/mysql/my.cnf
+
+4: sudo systemctl restart  mysql
+5: sudo systemctl status mysql
+
+==============================
+[ERROR] [MY-010092] [Server] Can't start server: can't create PID file: Permission>
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.716472Z 0 [ERROR] [MY-010119] [Server] Aborting
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589012]: 2025-02-13T07:32:59.716611Z 0 [ERROR] [MY-010946] [Server] Failed to start mysqld daemon. Check mysqld error log.
+Feb 13 13:02:59  dev-subrahmanym-database systemd[1]: mysql.service: Control process exited, code=exited, status=1/FAILURE
+Feb 13 13:03:01  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:33:01.316150Z 0 [System] [MY-010910] [Server] /opt/mysql/bin/mysqld: Shutdown complete (mysqld 8.0>
+Feb 13 13:03:01  dev-subrahmanym-database systemd[1]: mysql.service: Failed with result 'exit-code'.
+Feb 13 13:03:01  dev-subrahmanym-database systemd[1]: Failed to start MySQL Community Server.
+TO fix this error "Can't start server: can't create PID file: Permission"
+use below command to change ownership to mysql user and group as below
+-------------------------------------
+root@ dev-subrahmanym-database:/# sudo chown -R mysql:mysql mysql/
+root@ dev-subrahmanym-database:/# sudo systemctl start mysql
+root@ dev-subrahmanym-database:/# sudo systemctl status mysql
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2025-02-13 13:04:08 IST; 22s ago
+
+=============================================================
