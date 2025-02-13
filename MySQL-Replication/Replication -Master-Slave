@@ -9,114 +9,986 @@ A root password is set up on each server.
 Install MySQL Server on Both Nodes
 First, you will need to install the MySQL server on both nodes. You can install it with the following command:
 
-apt-get install mysql-server -y
-Once the installation has been completed, you will need to set a MySQL root password on both nodes.
 
-You can set it with the following command:
-
-mysql_secure_installation
-You will be asked to set a root password as shown below:
-
-Press y|Y for Yes, any other key for No: Press-Enter Please set the password for root here. New password: Re-enter new password: Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Y Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
-Configure MySQL on Master Node
-By default, MySQL listens on the localhost and doesn't allow connection from the remote system. So you will need to configure MySQL to listen on the public IP.
-
-To do so, edit the MySQL default configuration file:
-
-nano /etc/mysql/mysql.conf.d/mysqld.cnf
-Find the following line:
-
-bind-address = 127.0.0.1
-Replaced it with the following line:
-
-bind-address = Your-Master-IP
-Next, uncomment the following line:
-
+Replication Master - Slave :
+=========================================
+On-Master:
+-----------------
+root@dev-subrahmanyam-database:/mysql# sudo vi  /etc/mysql/my.cnf
+root@dev-subrahmanyam-database:/mysql# sudo cat  /etc/mysql/my.cnf
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+datadir = /mysql/data
+pid-file = /mysql/mysqld.pid
+user = mysql
 server-id = 1
-Next, add the following lines at the end of the file:
+log-bin = /mysql/bin/mysql-bin.log
 
-log_bin = /var/log/mysql/mysql-bin.log log_bin_index =/var/log/mysql/mysql-bin.log.index relay_log = /var/log/mysql/mysql-relay-bin relay_log_index = /var/log/mysql/mysql-relay-bin.index
-Save and close the file then restart the MySQL service to apply the changes:
+[client]
+socket = /var/run/mysqld/mysqld.sock
 
-systemctl restart mysql
-Create a Replication User on Master Node
-Next, you will need to create a new user for replication and grant privileges to the replication slave.
+root@dev-subrahmanyam-database:/mysql# sudo mkdir /mysql/bin
+root@dev-subrahmanyam-database:/mysql# sudo chmod 755  /mysql/bin
+root@dev-subrahmanyam-database:/mysql# sudo chown -R mysql:mysql  /mysql/bin
+root@dev-subrahmanyam-database:/mysql# sudo systemctl restart mysql
+root@dev-subrahmanyam-database:/mysql# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.28 MySQL Community Server - GPL
 
-First, connect to the MySQL shell with the following command:
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
 
-mysql -u root -p
-Once login, create a replication user with the following command:
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
 
-mysql> CREATE USER 'replication_user'@'your-slave-ip' IDENTIFIED BY 'password';
-Next, grant all privileges to replication slave with the following command:
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
-mysql> GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'your-slave-ip';
-Next, flush the privileges with the following command:
+mysql>
+mysql> CREATE USER 'replica_user'@'%' IDENTIFIED BY 'repl!caU$r2399';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'%';
+Query OK, 0 rows affected (0.01 sec)
 
 mysql> FLUSH PRIVILEGES;
-Next, verify the Master status with the following command:
+Query OK, 0 rows affected (0.00 sec)
 
-mysql> SHOW MASTER STATUS\G
-You should get the following output:
+mysql>
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      872 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
 
-*************************** 1. row *************************** File: mysql-bin.000001 Position: 900 Binlog_Do_DB: Binlog_Ignore_DB: Executed_Gtid_Set: 1 row in set (0.00 sec)
-From the above output, note down the mysql-bin.000001 value and the Position ID 900. You will need both to set up a slave server.
+mysql> Note the values of File and Position. You'll need these for the slave configuration.^C
+mysql>
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| touprd             |
++--------------------+
+5 rows in set (0.01 sec)
 
-Configure the Slave Node
-First, edit the MySQL default configuration file with the following comamnd:
+mysql> use touprd
+Database changed
+mysql> CREATE TABLE test_table (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));
+Query OK, 0 rows affected (0.01 sec)
 
-nano /etc/mysql/mysql.conf.d/mysqld.cnf
-Find the following line:
+mysql> INSERT INTO test_table (name) VALUES ('Replication Test');
+Query OK, 1 row affected (0.01 sec)
 
-bind-address = 127.0.0.1
-Replace it with the following line:
+mysql> Drop Database touprd;
+Query OK, 1 row affected (0.01 sec)
 
-bind-address = Slave-server-ip
-Next, uncomment and change the server-id value:
+mysql>
+mysql>
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
 
+mysql>
+mysql> create database touprd;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> use touprd
+Database changed
+mysql> CREATE TABLE test_table (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> INSERT INTO test_table (name) VALUES ('Replication Test');
+Query OK, 1 row affected (0.01 sec)
+
+mysql>
+mysql> create database subbu;
+Query OK, 1 row affected (0.00 sec)
+mysql> use subbu
+Database changed
+mysql> CREATE TABLE test_table (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO test_table (name) VALUES ('Replication Test');
+Query OK, 1 row affected (0.00 sec)
+mysql>
+mysql> exit
+Bye
+root@dev-subrahmanyam-database:/mysql#
+root@dev-subrahmanyam-database:/mysql# cat  /etc/mysql/my.cnf
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+datadir = /mysql/data
+pid-file = /mysql/mysqld.pid
+user = mysql
+server-id = 1
+log-bin = /mysql/bin/mysql-bin.log
+
+[client]
+socket = /var/run/mysqld/mysqld.sock
+
+root@dev-subrahmanyam-database:/mysql# sudo vi  /etc/mysql/my.cnf
+root@dev-subrahmanyam-database:/mysql# sudo systemctl restart mysql
+root@dev-subrahmanyam-database:/mysql# sudo ufw allow from 192.168.xx.xxx to any port 3306
+Rule added
+root@dev-subrahmanyam-database:/mysql# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 11
+Server version: 8.0.28 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000002 |      157 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> ALTER USER 'replica_user'@'192.168.xx.xxx' IDENTIFIED WITH mysql_native_password BY 'xxxxxxx';
+ERROR 1396 (HY000): Operation ALTER USER failed for 'replica_user'@'192.168.xx.xxx'
+mysql> 
+mysql> ALTER USER 'replica_user'@'192.168.xx.xxx' IDENTIFIED WITH mysql_native_password BY 'xxxxxx';
+ERROR 1396 (HY000): Operation ALTER USER failed for 'replica_user'@'192.168.xx.xxx'
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'replica_user'@'192.168.xx.xxx' IDENTIFIED WITH mysql_native_password BY 'xxxxxx';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'IDENTIFIED WITH mysql_native_password BY 'xxxxxxx'' at line 1
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000002 |      324 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> DROP USER 'replica_user'@'192.168.xx.xxx';
+ERROR 1396 (HY000): Operation DROP USER failed for 'replica_user'@'192.168.xx.xxx'
+mysql>
+mysql> DROP USER 'replica_user'@'%';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> CREATE USER 'repuser'@'192.168.xx.xxx' IDENTIFIED WITH mysql_native_password BY '$lavE1piAdd6';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repuser'@'192.168.xx.xxx';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> drop database touprd;
+Query OK, 1 row affected (0.01 sec)
+
+mysql>
+mysql>
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000002 |     1735 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| subbu              |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> drop database subbu;
+Query OK, 1 row affected (0.00 sec)
+
+mysql>
+mysql> use subbu
+ERROR 1049 (42000): Unknown database 'subbu'
+mysql> create database subbu;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> use subbu
+Database changed
+mysql>
+mysql> CREATE TABLE test_table (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO test_table (name) VALUES ('Replication Test');
+Query OK, 1 row affected (0.03 sec)
+
+mysql>
+
+===================================
+On-Slave:
+===================================
+root@dev-subrahmSlave-database:/mysql# sudo vi /etc/mysql/my.cnf
+root@dev-subrahmSlave-database:/mysql# sudo systemctl restart mysql
+root@dev-subrahmSlave-database:/mysql# sudo cat  /etc/mysql/my.cnf
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+datadir = /mysql/data
+pid-file = /mysql/mysqld.pid
+user = mysql
 server-id = 2
-Next, add the following lines at the end of the file:
 
-log_bin = /var/log/mysql/mysql-bin.log log_bin_index =/var/log/mysql/mysql-bin.log.index relay_log = /var/log/mysql/mysql-relay-bin relay_log_index = /var/log/mysql/mysql-relay-bin.index
-Finally, restart the MySQL service to apply the changes:
+[client]
+socket = /var/run/mysqld/mysqld.sock
 
-systemctl restart mysql
-Next, log in to MySQL with the following command:
+root@dev-subrahmSlave-database:/mysql# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.28 MySQL Community Server - GPL
 
-mysql -u root -p
-Once login, stop the slave server to connect to the master server:
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
 
-mysql> STOP SLAVE;
-Run the following command to allow the slave server to replicate the Master server:
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
 
-mysql> CHANGE MASTER TO MASTER_HOST ='your-master-ip', MASTER_USER ='replication_user', MASTER_PASSWORD ='password', MASTER_LOG_FILE = 'mysql-bin.000001', MASTER_LOG_POS = 900;
-Next, start the SLAVE with the following command:
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CHANGE MASTER TO MASTER_HOST = '192.168.xx.xxx',MASTER_USER = 'replica_user', MASTER_PASSWORD = 'repl!caU$r2399', MASTER_LOG_FILE = 'mysql-bin.000001',MASTER_LOG_POS = 872;
+Query OK, 0 rows affected, 8 warnings (0.02 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.01 sec)
 
 mysql> START SLAVE;
-Test the Master-Slave Replication
-At this point, Master-Slave replication is configured. Now it's time to test whether the replication works or not.
+Query OK, 0 rows affected, 1 warning (0.01 sec)
 
-To do so, we will create a database on the Master Node and verify whether it will be replicated on the Slave Node.
+mysql>
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Connecting to source
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: replica_user
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000001
+          Read_Master_Log_Pos: 872
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000001
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: mysql-bin.000001
+             Slave_IO_Running: Connecting
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 872
+              Relay_Log_Space: 157
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 0
+                  Master_UUID:
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.00 sec)
 
-First, log in to the MySQL on the Master Node:
+mysql> START SLAVE;
+Query OK, 0 rows affected, 2 warnings (0.00 sec)
 
-mysql -u root -p
-Once you are log in, create a database with the following command:
+mysql>
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
 
-mysql> CREATE DATABASE newdb;
-Next, exit from the MySQL with the following command:
+mysql>
+mysql>
+root@dev-subrahmSlave-database:/mysql# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 15
+Server version: 8.0.28 MySQL Community Server - GPL
 
-mysql> EXIT;
-Next, log in to the MySQL on the Slave Node:
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
 
-mysql -u root -p
-Once you are log in, list all the databases:
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
 
-mysql> SHOW DATABASES;
-You should see the following output:
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
-+--------------------+ | Database | +--------------------+ | information_schema | | mysql | | newdb | | performance_schema | | sys | +--------------------+
-As you can see, the newdb database has been replicated to the Slave Node.
+mysql>
+mysql>
+
+mysql>
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Connecting to source
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: replica_user
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000001
+          Read_Master_Log_Pos: 872
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000001
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: mysql-bin.000001
+             Slave_IO_Running: Connecting
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 872
+              Relay_Log_Space: 157
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 0
+                  Master_UUID:
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.01 sec)
+
+mysql>
+root@dev-subrahmSlave-database:/mysql#
+root@dev-subrahmSlave-database:/mysql# telnet 192.168.xx.xxx 3306
+Trying 192.168.xx.xxx...
+^C
+root@dev-subrahmSlave-database:/mysql# ping 192.168.xx.xxx
+PING 192.168.xx.xxx (192.168.xx.xxx) 56(84) bytes of data.
+64 bytes from 192.168.xx.xxx: icmp_seq=1 ttl=64 time=0.179 ms
+64 bytes from 192.168.xx.xxx: icmp_seq=2 ttl=64 time=0.199 ms
+64 bytes from 192.168.xx.xxx: icmp_seq=3 ttl=64 time=0.136 ms
+^C
+--- 192.168.xx.xxx ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2040ms
+rtt min/avg/max/mdev = 0.136/0.171/0.199/0.026 ms
+
+*******************************************************
+Here Issue with the connection  go to Primary and add rule below
+sudo ufw allow from 192.168.xx.xxx to any port 3306
+*******************************************************
+
+root@dev-subrahmSlave-database:/mysql# telnet 192.168.xx.xxx 3306
+Trying 192.168.xx.xxx...
+Connected to 192.168.xx.xxx.
+Escape character is '^]'.
+J
+8.0.2vP:!;/▒
+N%)N0< g!9%caching_sha2_password2#08S01Got timeout reading communication packetsConnection closed by foreign host.
+root@dev-subrahmSlave-database:/mysql# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 22
+Server version: 8.0.28 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.01 sec)
+
+mysql> 
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Connecting to source
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: replica_user
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 324
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000001
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Connecting
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 324
+              Relay_Log_Space: 157
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 2061
+                Last_IO_Error: error connecting to master 'replica_user@192.168.xx.xxx:3306' - retry-time: 60 retries: 1 message: Authentication plugin 'caching_sha2_password' reported error: Authentication requires secure connection.
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 0
+                  Master_UUID:
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp: 250213 18:16:01
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.00 sec)
+
+mysql>
+
+Issue : "Last_IO_Error: error connecting to master 'replica_user@192.168.xx.xxx:3306' - retry-time: 60 retries: 1 message: Authentication plugin 'caching_sha2_password' reported error: Authentication requires secure connection."
+
+replica user permission issue .  dropped existing user and recreated as below and get new MASTER STATUS 
+
+mysql> DROP USER 'replica_user'@'192.168.xx.xxx';
+ERROR 1396 (HY000): Operation DROP USER failed for 'replica_user'@'192.168.xx.xxx'
+mysql>
+mysql> DROP USER 'replica_user'@'%';
+Query OK, 0 rows affected (0.00 sec)
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.01 sec)
+mysql> CREATE USER 'repuser'@'192.168.xx.xxx' IDENTIFIED WITH mysql_native_password BY '$lavE1piAdd6';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repuser'@'192.168.xx.xxx';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000002 |     1548 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+
+mysql> STOP SLAVE;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> CHANGE MASTER TO MASTER_HOST = '192.168.xx.xxx',MASTER_USER = 'repuser', MASTER_PASSWORD = '$lavE1piAdd6', MASTER_LOG_FILE = 'mysql-bin.000002',MASTER_LOG_POS =1548;
+Query OK, 0 rows affected, 8 warnings (0.01 sec)
+
+mysql>
+mysql> START SLAVE;
+Query OK, 0 rows affected, 1 warning (0.01 sec)
+
+mysql>
+mysql>
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for source to send event
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: repuser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 1548
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000002
+                Relay_Log_Pos: 326
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 1548
+              Relay_Log_Space: 548
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: b45ba68c-e9db-11ef-96fb-005056940461
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.01 sec)
+
+mysql> show dbs
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'dbs' at line 1
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for source to send event
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: repuser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 2107
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000002
+                Relay_Log_Pos: 326
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: No
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 1008
+                   Last_Error: Coordinator stopped because there were error(s) in the worker(s). The most recent failure being: Worker 1 failed executing transaction 'ANONYMOUS' at master log mysql-bin.000002, end_log_pos 1735. See error log and/or performance_schema.replication_applier_status_by_worker table for more details about this failure or others, if any.
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 1548
+              Relay_Log_Space: 1107
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 1008
+               Last_SQL_Error: Coordinator stopped because there were error(s) in the worker(s). The most recent failure being: Worker 1 failed executing transaction 'ANONYMOUS' at master log mysql-bin.000002, end_log_pos 1735. See error log and/or performance_schema.replication_applier_status_by_worker table for more details about this failure or others, if any.
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: b45ba68c-e9db-11ef-96fb-005056940461
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State:
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp: 250213 18:20:31
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.01 sec)
+
+mysql>
+mysql> STOP SLAVE;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> START SLAVE;
+Query OK, 0 rows affected, 1 warning (0.02 sec)
+
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for source to send event
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: repuser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 2107
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000002
+                Relay_Log_Pos: 513
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: No
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 1008
+                   Last_Error: Coordinator stopped because there were error(s) in the worker(s). The most recent failure being: Worker 1 failed executing transaction 'ANONYMOUS' at master log mysql-bin.000002, end_log_pos 1919. See error log and/or performance_schema.replication_applier_status_by_worker table for more details about this failure or others, if any.
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 1735
+              Relay_Log_Space: 1498
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 1008
+               Last_SQL_Error: Coordinator stopped because there were error(s) in the worker(s). The most recent failure being: Worker 1 failed executing transaction 'ANONYMOUS' at master log mysql-bin.000002, end_log_pos 1919. See error log and/or performance_schema.replication_applier_status_by_worker table for more details about this failure or others, if any.
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: b45ba68c-e9db-11ef-96fb-005056940461
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State:
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp: 250213 18:22:57
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.01 sec)
+
+mysql>
+mysql> STOP SLAVE;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> START SLAVE;
+Query OK, 0 rows affected, 1 warning (0.02 sec)
+
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for source to send event
+                  Master_Host: 192.168.xx.xxx
+                  Master_User: repuser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 2107
+               Relay_Log_File: dev-subrahmSlave-database-relay-bin.000004
+                Relay_Log_Pos: 326
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 2107
+              Relay_Log_Space: 717
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: b45ba68c-e9db-11ef-96fb-005056940461
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 0
+            Network_Namespace:
+1 row in set, 1 warning (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| subbu              |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql> use subbu
+Database changed
+mysql> show tables;
+Empty set (0.00 sec)
+
+mysql> show tables;
++-----------------+
+| Tables_in_subbu |
++-----------------+
+| test_table      |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> select * from test_table;
+Empty set (0.01 sec)
+
+mysql> select * from test_table;
++----+------------------+
+| id | name             |
++----+------------------+
+|  1 | Replication Test |
++----+------------------+
+1 row in set (0.00 sec)
+
+mysql>
 
 Conclusion
 Congratulations! you have successfully set up a MySQL Master-Slave replication on the Ubuntu 20.04 server. You can now use this setup in the production environment to save your data in the event of failure.
