@@ -829,3 +829,69 @@ mysql> show databases;
 4 rows in set (0.00 sec)
 
 mysql>
+
+======================================================
+Quick Steps :
+=======================================================
+
+ps -ef | grep mysql
+mkdir /mysql
+chown -R mysql:mysql  /mysql
+sudo useradd -r -s /bin/false mysql
+chown -R mysql:mysql  /mysql
+mkdir /mysql/data
+chown -R mysql:mysql  /mysql/data
+mkdir /mysql/logs
+chown -R mysql:mysql  /mysql/logs
+sudo chmod 700 /mysql/data
+sudo chmod 700 /mysql/logs
+sudo chmod 700 /mysql/data
+cd /mysql
+wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+ls
+sudo tar -xvf mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz -C /opt
+sudo mv /opt/mysql-8.0.28-linux-glibc2.12-x86_64 /opt/mysql
+sudo chown -R mysql:mysql /opt/mysql
+sudo vi ~/.bashrc
+export PATH=$PATH:/opt/mysql/bin  #Add this to the last line
+source ~/.bashrc
+sudo /opt/mysql/bin/mysqld --initialize --user=mysql --datadir=/mysql/data --log-error=/mysql/logs/mysql-error.log
+sudo tail -n 50 /mysql/logs/mysql-error.log
+sudo vi /etc/systemd/system/mysql.service
+[Unit]
+Description=MySQL Community Server
+Documentation=https://dev.mysql.com/doc/refman/en/
+After=network.target
+
+[Service]
+Type=forking
+User=mysql
+Group=mysql
+ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid
+ExecStop=/opt/mysql/bin/mysqladmin shutdown
+ExecStartPost=/bin/chown -R mysql:mysql /mysql/data
+ExecStartPre=/bin/mkdir -m 755 -p /mysql/data
+LimitNOFILE=5000
+
+[Install]
+WantedBy=multi-user.target
+sudo systemctl daemon-reload
+sudo systemctl enable mysql
+sudo apt update
+sudo find /lib /usr/lib -name "libtinfo.so*"
+sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5
+sudo systemctl start mysql
+systemctl status mysql.service
+sudo vi /etc/systemd/system/mysql.service
+sudo systemctl daemon-reload
+sudo systemctl start mysql
+sudo systemctl status mysql
+sudo /opt/mysql/bin/mysql_secure_installation
+mysql -u root -p
+sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5
+sudo find /lib /usr/lib -name "libtinfo.so*"
+sudo apt-get install libncurses5
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
+mysql -u root -p
+
+
