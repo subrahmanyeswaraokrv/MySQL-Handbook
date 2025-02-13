@@ -2,7 +2,7 @@ MySQL -Installation- UBUNTU-22:
 ==================================
 1. Update the Package Index:
 ------------------------------
-root@dev-shared-database:/mysql# sudo apt update
+root@ dev-subrahmanym-database:/mysql# sudo apt update
 Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
 Hit:2 http://in.archive.ubuntu.com/ubuntu jammy InRelease
 Hit:3 https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 InRelease
@@ -20,7 +20,7 @@ Reading state information... Done
 
 2. Install MySQL Server -Now, install MySQL server using the apt package manager:
 ---------------------------------------------------------------------------------
-root@dev-shared-database:/mysql# sudo apt install mysql-server
+root@ dev-subrahmanym-database:/mysql# sudo apt install mysql-server
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
@@ -302,8 +302,8 @@ No containers need to be restarted.
 No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
-^[root@dev-shared-database:/mysql#
-root@dev-shared-database:/mysql#
+^[root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
  
 3. Secure the MySQL Installation: After installation, it’s recommended to run the mysql_secure_installation script to improve security:
 ---------------------------------
@@ -313,7 +313,7 @@ Remove insecure default settings.
 Disable symbolic-links.
 You can press Enter for most of the default values unless you have specific requirements.
 -----------------------------------
-root@dev-shared-database:/mysql# sudo mysql_secure_installation
+root@ dev-subrahmanym-database:/mysql# sudo mysql_secure_installation
 Securing the MySQL server deployment.
 Connecting to MySQL using a blank password.
 VALIDATE PASSWORD COMPONENT can be used to test passwords
@@ -373,15 +373,15 @@ All done!
 4. Start and Enable MySQL Service
 Ensure that the MySQL service is running and starts automatically on boot:
 --------------------------------------------------------------------------
-root@dev-shared-database:/mysql# sudo systemctl start mysql
-root@dev-shared-database:/mysql# sudo systemctl enable mysql
+root@ dev-subrahmanym-database:/mysql# sudo systemctl start mysql
+root@ dev-subrahmanym-database:/mysql# sudo systemctl enable mysql
 Synchronizing state of mysql.service with SysV service script with /lib/systemd/systemd-sysv-install.
 Executing: /lib/systemd/systemd-sysv-install enable mysql
 
 5. Check MySQL Service Status
 To check if MySQL is running properly, you can use:
 ----------------------------------------------------
-root@dev-shared-database:/mysql# sudo systemctl status mysql
+root@ dev-subrahmanym-database:/mysql# sudo systemctl status mysql
 ● mysql.service - MySQL Community Server
      Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
      Active: active (running) since Thu 2025-02-13 11:09:22 IST; 2min 3s ago
@@ -393,14 +393,14 @@ root@dev-shared-database:/mysql# sudo systemctl status mysql
      CGroup: /system.slice/mysql.service
              └─1585713 /usr/sbin/mysqld
 
-Feb 13 11:09:21 dev-shared-database systemd[1]: Starting MySQL Community Server...
-Feb 13 11:09:22 dev-shared-database systemd[1]: Started MySQL Community Server.
-root@dev-shared-database:/mysql#
+Feb 13 11:09:21  dev-subrahmanym-database systemd[1]: Starting MySQL Community Server...
+Feb 13 11:09:22  dev-subrahmanym-database systemd[1]: Started MySQL Community Server.
+root@ dev-subrahmanym-database:/mysql#
 
 6. Access MySQL (Root User)
 Once MySQL is installed and running, you can access the MySQL shell as the root user:
 -------------------------------------------------------------------------------------
-root@dev-shared-database:/mysql# sudo mysql
+root@ dev-subrahmanym-database:/mysql# sudo mysql
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 10
 Server version: 8.0.41-0ubuntu0.22.04.1 (Ubuntu)
@@ -455,12 +455,12 @@ Query OK, 0 rows affected (0.01 sec)
 
 mysql> exit
 Bye
-root@dev-shared-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
 
 Step 9: Test the password
 Now, try logging in again with the new password you set:
 -------------------------------------------------------
-root@dev-shared-database:/mysql# mysql -u root -p
+root@ dev-subrahmanym-database:/mysql# mysql -u root -p
 Enter password:
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 16
