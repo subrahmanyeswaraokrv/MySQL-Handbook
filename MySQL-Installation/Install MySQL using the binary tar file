@@ -1,0 +1,841 @@
+root@ dev-subrahmanym-database:~# Install MySQL on Ubuntu 22.04 using the binary tar file and configure it with a dedicated data directory and log, you can follow these steps 
+root@ dev-subrahmanym-database:~# =======================================================================================
+root@ dev-subrahmanym-database:~# 1. Download MySQL Binary Tar File Go to MySQL's official website and download the MySQL tar binary archive:
+
+Visit MySQL Downloads and download the tar.gz file for Linux.
+
+Or you can download it directly using wget from the command line. For example, use the following command for version 8.0.28 (or replace the version with the latest one):    
+root@ dev-subrahmanym-database:~# ======================================================================================
+root@ dev-subrahmanym-database:~# cd /mysql
+root@ dev-subrahmanym-database:/mysql# wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+--2025-02-13 12:41:19--  https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+Resolving dev.mysql.com (dev.mysql.com)... 104.85.147.82, 2600:140f:3:159b::2e31, 2600:140f:3:1592::2e31
+Connecting to dev.mysql.com (dev.mysql.com)|104.85.147.82|:443... connected.
+HTTP request sent, awaiting response... 302 Moved Temporarily
+Location: https://cdn.mysql.com//archives/mysql-8.0/mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz [following]
+--2025-02-13 12:41:20--  https://cdn.mysql.com//archives/mysql-8.0/mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+Resolving cdn.mysql.com (cdn.mysql.com)... 23.55.28.208, 2600:140f:3:1595::1d68, 2600:140f:3:15a2::1d68
+Connecting to cdn.mysql.com (cdn.mysql.com)|23.55.28.208|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1204277208 (1.1G) [text/plain]
+Saving to: ‘mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz’
+
+mysql-8.0.28-linux-glibc2.12-x86_64.tar.x 100%[===================================================================================>]   1.12G  10.1MB/s    in 2m 8s
+
+2025-02-13 12:43:30 (9.00 MB/s) - ‘mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz’ saved [1204277208/1204277208]
+
+root@ dev-subrahmanym-database:/mysql# ls
+data  mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Extract the tar file:
+
+After downloading, extract the tarball to a directory where you want to install MySQL. For example, to extract to /opt:
+root@ dev-subrahmanym-database:/mysql# ======================================================================================
+root@ dev-subrahmanym-database:/mysql# sudo tar -xvf mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz -C /opt
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/myisam_ftdump
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/myisamchk
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/myisamlog
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/myisampack
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_config_editor
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_migrate_keyring
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_secure_installation
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_ssl_rsa_setup
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_tzinfo_to_sql
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_upgrade
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqladmin
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlbinlog
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlcheck
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqldump
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlimport
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlpump
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlshow
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqlslap
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/authentication_fido_client.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/authentication_kerberos_client.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/authentication_ldap_sasl_client.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/authentication_oci_client.so
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqld-debug
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysql_config
+mysql-8.0.28-linux-glibc2.12-x86_64/include/
+mysql-8.0.28-linux-glibc2.12-x86_64/include/errmsg.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/field_types.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/my_command.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/my_compress.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/my_list.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql/
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql/client_plugin.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql/plugin_auth_common.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql/udf_registration_types.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql_com.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql_time.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysql_version.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysqld_error.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysqlx_ername.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysqlx_error.h
+mysql-8.0.28-linux-glibc2.12-x86_64/include/mysqlx_version.h
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/libmysqlclient.a
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/libmysqlservices.a
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/pkgconfig/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/pkgconfig/mysqlclient.pc
+mysql-8.0.28-linux-glibc2.12-x86_64/share/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/aclocal/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/aclocal/mysql.m4
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/ChangeLog
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/INFO_SRC
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/INFO_BIN
+mysql-8.0.28-linux-glibc2.12-x86_64/docs/INFO_SRC
+mysql-8.0.28-linux-glibc2.12-x86_64/man/
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/comp_err.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/ibd2sdi.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/innochecksum.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/lz4_decompress.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/my_print_defaults.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/myisam_ftdump.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/myisamchk.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/myisamlog.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/myisampack.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql.server.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_config.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_config_editor.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_secure_installation.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_ssl_rsa_setup.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_tzinfo_to_sql.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysql_upgrade.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqladmin.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlbinlog.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlcheck.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqld_multi.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqld_safe.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqldump.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqldumpslow.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlimport.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlman.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlpump.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlrouter.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlrouter_passwd.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlrouter_plugin_info.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlshow.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/mysqlslap.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/perror.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man1/zlib_decompress.1
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man8/
+mysql-8.0.28-linux-glibc2.12-x86_64/man/man8/mysqld.8
+mysql-8.0.28-linux-glibc2.12-x86_64/LICENSE
+mysql-8.0.28-linux-glibc2.12-x86_64/README
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/ibd2sdi
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/innochecksum
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/lz4_decompress
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/my_print_defaults
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqld
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqld_multi
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqld_safe
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/mysqldumpslow
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/perror
+mysql-8.0.28-linux-glibc2.12-x86_64/bin/zlib_decompress
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/char.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/dicrc
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/left-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/matrix.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/pos-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/rewrite.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/right-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/sys.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_euc-jp/unk.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/char.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/dicrc
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/left-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/matrix.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/pos-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/rewrite.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/right-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/sys.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_sjis/unk.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/char.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/dicrc
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/left-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/matrix.bin
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/pos-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/rewrite.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/right-id.def
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/sys.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/dic/ipadic_utf-8/unk.dic
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/etc/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/mecab/etc/mecabrc
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/adt_null.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/auth_socket.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_audit_api_message_emit.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_keyring_file.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_log_filter_dragnet.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_log_sink_json.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_log_sink_syseventlog.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_mysqlbackup.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_query_attributes.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_reference_cache.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/component_validate_password.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/connection_control.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/ddl_rewriter.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/adt_null.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/auth_socket.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_audit_api_message_emit.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_keyring_file.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_log_filter_dragnet.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_log_sink_json.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_log_sink_syseventlog.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_mysqlbackup.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_query_attributes.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_reference_cache.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/component_validate_password.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/connection_control.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/ddl_rewriter.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/group_replication.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/ha_example.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/ha_mock.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/innodb_engine.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/keyring_file.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/keyring_udf.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/libmemcached.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/libpluginmecab.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/locking_service.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/mypluglib.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/mysql_clone.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/mysql_no_login.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/rewrite_example.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/rewriter.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/semisync_master.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/semisync_replica.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/semisync_slave.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/semisync_source.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/validate_password.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/debug/version_token.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/group_replication.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/ha_example.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/ha_mock.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/innodb_engine.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/keyring_file.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/keyring_udf.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/libmemcached.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/libpluginmecab.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/locking_service.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/mypluglib.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/mysql_clone.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/mysql_no_login.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/rewrite_example.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/rewriter.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/semisync_master.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/semisync_replica.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/semisync_slave.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/semisync_source.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/validate_password.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/plugin/version_token.so
+mysql-8.0.28-linux-glibc2.12-x86_64/share/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/bulgarian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/bulgarian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/Index.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/README
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/armscii8.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/ascii.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp1250.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp1251.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp1256.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp1257.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp850.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp852.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/cp866.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/dec8.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/geostd8.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/greek.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/hebrew.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/hp8.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/keybcs2.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/koi8r.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/koi8u.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/latin1.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/latin2.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/latin5.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/latin7.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/macce.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/macroman.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/charsets/swe7.xml
+mysql-8.0.28-linux-glibc2.12-x86_64/share/czech/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/czech/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/danish/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/danish/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/dictionary.txt
+mysql-8.0.28-linux-glibc2.12-x86_64/share/dutch/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/dutch/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/english/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/english/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/estonian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/estonian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/french/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/french/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/german/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/german/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/greek/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/greek/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/hungarian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/hungarian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/innodb_memcached_config.sql
+mysql-8.0.28-linux-glibc2.12-x86_64/share/italian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/italian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/japanese/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/japanese/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/korean/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/korean/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/messages_to_clients.txt
+mysql-8.0.28-linux-glibc2.12-x86_64/share/messages_to_error_log.txt
+mysql-8.0.28-linux-glibc2.12-x86_64/share/norwegian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/norwegian-ny/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/norwegian-ny/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/norwegian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/polish/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/polish/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/portuguese/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/portuguese/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/romanian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/romanian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/russian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/russian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/serbian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/serbian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/slovak/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/slovak/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/spanish/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/spanish/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/swedish/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/swedish/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/share/ukrainian/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/ukrainian/errmsg.sys
+mysql-8.0.28-linux-glibc2.12-x86_64/support-files/
+mysql-8.0.28-linux-glibc2.12-x86_64/support-files/mysql-log-rotate
+mysql-8.0.28-linux-glibc2.12-x86_64/support-files/mysql.server
+mysql-8.0.28-linux-glibc2.12-x86_64/support-files/mysqld_multi.server
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/libmysqlclient.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/libmysqlclient.so.21
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/libmysqlclient.so.21.2.28
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/burmesedict.dict
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/char.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/cjdict.dict
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/de.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/el.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/en.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/en_US.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/en_US_POSIX.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/es.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/fr.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/it.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/ja.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/khmerdict.dict
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/laodict.dict
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line_cj.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line_loose.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line_loose_cj.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line_normal.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/line_normal_cj.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/pt.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/res_index.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/root.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/ru.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/sent.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/sent_el.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/thaidict.dict
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/title.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/word.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/word_POSIX.brk
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/zh.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/brkitr/zh_Hant.res
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/icudt69l/unames.icu
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libcom_err.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libcom_err.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libcom_err.so.3.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libcrypto.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libcrypto.so.1.1
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libfido2.so.1
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libfido2.so.1.5.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libgssapi_krb5.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libgssapi_krb5.so.2
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libgssapi_krb5.so.2.2
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libk5crypto.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libk5crypto.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libk5crypto.so.3.1
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5.so.3.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5support.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5support.so.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libkrb5support.so.0.1
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/liblber-2.4.so.2
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/liblber-2.4.so.2.11.4
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/liblber.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libldap_r-2.4.so.2
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libldap_r-2.4.so.2.11.4
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libldap_r.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libprotobuf-lite.so.3.11.4
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libprotobuf.so.3.11.4
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libsasl2.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libsasl2.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libsasl2.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libssl.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/libssl.so.1.1
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libanonymous.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libanonymous.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libanonymous.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libcrammd5.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libcrammd5.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libcrammd5.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libdigestmd5.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libdigestmd5.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libdigestmd5.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgs2.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgs2.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgs2.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgssapiv2.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgssapiv2.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libgssapiv2.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libplain.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libplain.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libplain.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libscram.so
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libscram.so.3
+mysql-8.0.28-linux-glibc2.12-x86_64/lib/private/sasl2/libscram.so.3.0.0
+mysql-8.0.28-linux-glibc2.12-x86_64/share/
+mysql-8.0.28-linux-glibc2.12-x86_64/share/install_rewriter.sql
+mysql-8.0.28-linux-glibc2.12-x86_64/share/uninstall_rewriter.sql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 2. Create the MySQL System User and Group
+Create a system user and group for MySQL:
+root@ dev-subrahmanym-database:/mysql# ==========================================
+root@ dev-subrahmanym-database:/mysql# sudo useradd -r -s /bin/false mysql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 3. Set Up MySQL Directories
+Create the directories for MySQL binaries, data, and logs:
+
+For example, you can use /mnt/mysql for data and /mnt/mysql-logs for logs:
+root@ dev-subrahmanym-database:/mysql# =========================================
+root@ dev-subrahmanym-database:/mysql# sudo mkdir -p /mysql/data/
+root@ dev-subrahmanym-database:/mysql# sudo mkdir -p /mysql/logs/
+root@ dev-subrahmanym-database:/mysql# sudo chown mysql:mysql /mysql/data
+root@ dev-subrahmanym-database:/mysql# sudo chown mysql:mysql /mysql/logs
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 2Set permissions
+root@ dev-subrahmanym-database:/mysql# ----------------
+root@ dev-subrahmanym-database:/mysql# sudo chmod 700 /mysql/data
+root@ dev-subrahmanym-database:/mysql# sudo chmod 700 /mysql/logs
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 4. Configure MySQL with the Binary Files
+Move the extracted MySQL files:
+Move the extracted MySQL binaries to the appropriate directory: 
+root@ dev-subrahmanym-database:/mysql# ========================================
+root@ dev-subrahmanym-database:/mysql# sudo mv /opt/mysql-8.0.28-linux-glibc2.12-x86_64 /opt/mysql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Set the correct ownership for the MySQL directory:
+root@ dev-subrahmanym-database:/mysql# ---------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo chown -R mysql:mysql /opt/mysql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Add MySQL to the system’s PATH:
+root@ dev-subrahmanym-database:/mysql# ------------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo nano ~/.bashrc
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# sudo vi ~/.bashrc
+root@ dev-subrahmanym-database:/mysql# source ~/.bashrc
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 5. Initialize MySQL
+Run the mysqld command to initialize the MySQL data directory:
+Now, use mysqld to initialize the data directory and set up the required tables: 
+root@ dev-subrahmanym-database:/mysql# ------------------------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo /opt/mysql/bin/mysqld --initialize --user=mysql --datadir=/mysql/data --log-error=/mysql/logs/mysql-error.log
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# This command will initialize the MySQL system tables and generate a temporary root password (which will be logged in the error log).
+root@ dev-subrahmanym-database:/mysql# -------------------------------------------------------------
+root@ dev-subrahmanym-database:/mysql# Check the MySQL error log for the temporary root password:
+root@ dev-subrahmanym-database:/mysql# ----------------------------------------------------------
+root@ dev-subrahmanym-database:/mysql# To see the temporary password generated for the root user:
+root@ dev-subrahmanym-database:/mysql# sudo tail -n 50 /mnt/mysql-logs/mysql-error.log
+tail: cannot open '/mnt/mysql-logs/mysql-error.log' for reading: No such file or directory
+root@ dev-subrahmanym-database:/mysql# sudo tail -n 50 /mysql/logs/mysql-error.log
+2025-02-13T07:25:30.470439Z 0 [System] [MY-013169] [Server] /opt/mysql/bin/mysqld (mysqld 8.0.28) initializing of server in progress as process 1588609
+2025-02-13T07:25:30.483660Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2025-02-13T07:25:31.319343Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2025-02-13T07:25:33.456231Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: f7pOjw&jIZ:d
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Configure MySQL to run as a service:
+root@ dev-subrahmanym-database:/mysql# ------------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo nano /etc/systemd/system/mysql.service
+root@ dev-subrahmanym-database:/mysql# sudo vi /etc/systemd/system/mysql.service
+root@ dev-subrahmanym-database:/mysql# sudo cat /etc/systemd/system/mysql.service
+[Unit]
+Description=MySQL Community Server
+Documentation=https://dev.mysql.com/doc/refman/en/
+After=network.target
+
+[Service]
+Type=forking
+User=mysql
+Group=mysql
+ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/var/run/mysqld/mysqld.pid
+ExecStop=/opt/mysql/bin/mysqladmin shutdown
+ExecStartPost=/bin/chown -R mysql:mysql /mysql/data
+ExecStartPre=/bin/mkdir -m 755 -p /mysql/data
+LimitNOFILE=5000
+
+[Install]
+WantedBy=multi-user.target
+
+root@ dev-subrahmanym-database:/mysql# Reload the systemd service files and enable MySQL:
+root@ dev-subrahmanym-database:/mysql# --------------------------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo systemctl daemon-reload
+root@ dev-subrahmanym-database:/mysql# sudo systemctl enable mysql
+Created symlink /etc/systemd/system/multi-user.target.wants/mysql.service → /etc/systemd/system/mysql.service.
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# 6.Start MySQL
+root@ dev-subrahmanym-database:/mysql# =============
+root@ dev-subrahmanym-database:/mysql# sudo systemctl start mysql
+Job for mysql.service failed because the control process exited with error code.
+See "systemctl status mysql.service" and "journalctl -xeu mysql.service" for details.
+root@ dev-subrahmanym-database:/mysql# systemctl status mysql.service
+× mysql.service - MySQL Community Server
+     Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2025-02-13 13:00:56 IST; 19s ago
+       Docs: https://dev.mysql.com/doc/refman/en/
+    Process: 1588837 ExecStartPre=/bin/mkdir -m 755 -p /mysql/data (code=exited, status=0/SUCCESS)
+    Process: 1588838 ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/var/run/mysqld/mysqld.pid (code=exited, status=1/FAIL>
+        CPU: 949ms
+
+Feb 13 13:00:55  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:55.903469Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.128537Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.411948Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.412277Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encryp>
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588841]: 2025-02-13T07:30:56.413987Z 0 [ERROR] [MY-011811] [Server] Can't start server: can't check PID filepath: No such>
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588838]: 2025-02-13T07:30:56.472403Z 0 [ERROR] [MY-011065] [Server] Unable to determine if daemon is running: Inappropria>
+Feb 13 13:00:56  dev-subrahmanym-database mysqld[1588838]: 2025-02-13T07:30:56.472422Z 0 [ERROR] [MY-010946] [Server] Failed to start mysqld daemon. Check mysqld error log.
+Feb 13 13:00:56  dev-subrahmanym-database systemd[1]: mysql.service: Control process exited, code=exited, status=1/FAILURE
+Feb 13 13:00:56  dev-subrahmanym-database systemd[1]: mysql.service: Failed with result 'exit-code'.
+Feb 13 13:00:56  dev-subrahmanym-database systemd[1]: Failed to start MySQL Community Server.
+lines 1-18/18 (END)
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# sudo vi /etc/systemd/system/mysql.service
+---------------------------------------------
+Changed pid path to /mysql/mysqld.pid
+----------------------------------------------
+root@ dev-subrahmanym-database:/mysql# sudo systemctl daemon-reload
+root@ dev-subrahmanym-database:/mysql# sudo systemctl enable mysql
+root@ dev-subrahmanym-database:/mysql# sudo systemctl start mysql
+Job for mysql.service failed because the control process exited with error code.
+See "systemctl status mysql.service" and "journalctl -xeu mysql.service" for details.
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# systemctl status mysql.service
+× mysql.service - MySQL Community Server
+     Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2025-02-13 13:03:01 IST; 11s ago
+       Docs: https://dev.mysql.com/doc/refman/en/
+    Process: 1589011 ExecStartPre=/bin/mkdir -m 755 -p /mysql/data (code=exited, status=0/SUCCESS)
+    Process: 1589012 ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid (code=exited, status=1/FAILURE)
+        CPU: 955ms
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.712133Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.712182Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encryp>
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.714295Z 0 [ERROR] [MY-013129] [Server] A message intended for a client cannot be sent there >
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.714326Z 0 [ERROR] [MY-010092] [Server] Can't start server: can't create PID file: Permission>
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:32:59.716472Z 0 [ERROR] [MY-010119] [Server] Aborting
+Feb 13 13:02:59  dev-subrahmanym-database mysqld[1589012]: 2025-02-13T07:32:59.716611Z 0 [ERROR] [MY-010946] [Server] Failed to start mysqld daemon. Check mysqld error log.
+Feb 13 13:02:59  dev-subrahmanym-database systemd[1]: mysql.service: Control process exited, code=exited, status=1/FAILURE
+Feb 13 13:03:01  dev-subrahmanym-database mysqld[1589015]: 2025-02-13T07:33:01.316150Z 0 [System] [MY-010910] [Server] /opt/mysql/bin/mysqld: Shutdown complete (mysqld 8.0>
+Feb 13 13:03:01  dev-subrahmanym-database systemd[1]: mysql.service: Failed with result 'exit-code'.
+Feb 13 13:03:01  dev-subrahmanym-database systemd[1]: Failed to start MySQL Community Server.
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# ll -lhrt
+total 1.2G
+-rw-r--r--  1 root  root  1.2G Dec 18  2021 mysql-8.0.28-linux-glibc2.12-x86_64.tar.xz
+drwxr-xr-x 22 root  root  4.0K Feb 13 10:07 ../
+drwxr-xr-x  4 root  root  4.0K Feb 13 12:48 ./
+drwx------  2 mysql mysql 4.0K Feb 13 12:55 logs/
+drwx------  6 mysql mysql 4.0K Feb 13 13:03 data/
+root@ dev-subrahmanym-database:/mysql# cd ..
+root@ dev-subrahmanym-database:/# ll -lhrt
+total 4.1G
+lrwxrwxrwx   1 root    root       8 Feb 17  2024 sbin -> usr/sbin/
+lrwxrwxrwx   1 root    root      10 Feb 17  2024 libx32 -> usr/libx32/
+lrwxrwxrwx   1 root    root       9 Feb 17  2024 lib64 -> usr/lib64/
+lrwxrwxrwx   1 root    root       9 Feb 17  2024 lib32 -> usr/lib32/
+lrwxrwxrwx   1 root    root       7 Feb 17  2024 lib -> usr/lib/
+lrwxrwxrwx   1 root    root       7 Feb 17  2024 bin -> usr/bin/
+drwxr-xr-x  14 root    root    4.0K Feb 17  2024 usr/
+drwxr-xr-x   2 root    root    4.0K Feb 17  2024 srv/
+drwxr-xr-x   2 root    root    4.0K Feb 17  2024 mnt/
+drwxr-xr-x   2 root    root    4.0K Feb 17  2024 media/
+drwxr-xr-x  13 root    root    4.0K Feb 17  2024 var/
+drwxr-xr-x   6 root    root    4.0K Feb 17  2024 snap/
+dr-xr-xr-x   2 root    root    4.0K Feb 17  2024 cdrom/
+drwx------   2 root    root     16K Nov 11 11:44 lost+found/
+-rw-------   1 root    root    4.0G Nov 11 11:47 swap.img
+dr-xr-xr-x  13 root    root       0 Nov 11 11:55 sys/
+dr-xr-xr-x 293 root    root       0 Nov 11 11:55 proc/
+drwxr-xr-x  19 root    root    4.0K Nov 26 23:16 dev/
+drwxr-xr-x   6 root    root    4.0K Jan 23 13:14 home/
+drwxr-xr-x   4 root    root    4.0K Jan 29 06:56 boot/
+drwxrwxrwx   6 mongodb mongodb 4.0K Feb 11 15:55 mongo/
+drwxr-xr-x  22 root    root    4.0K Feb 13 10:07 ../
+drwxr-xr-x  22 root    root    4.0K Feb 13 10:07 ./
+drwxr-xr-x  37 root    root    1.2K Feb 13 11:44 run/
+drwxr-xr-x 102 root    root    4.0K Feb 13 12:47 etc/
+drwxr-xr-x   4 root    root    4.0K Feb 13 12:48 mysql/
+drwxr-xr-x   3 root    root    4.0K Feb 13 12:50 opt/
+drwxrwxrwt  18 root    root    4.0K Feb 13 13:03 tmp/
+drwx------   6 root    root    4.0K Feb 13 13:03 root/
+----------------------------------
+TO fix this error "Can't start server: can't create PID file: Permission"
+use below command to change ownership to mysql user and group as below
+-------------------------------------
+root@ dev-subrahmanym-database:/# sudo chown -R mysql:mysql mysql/
+root@ dev-subrahmanym-database:/# sudo systemctl start mysql
+root@ dev-subrahmanym-database:/#
+root@ dev-subrahmanym-database:/# sudo systemctl status mysql
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2025-02-13 13:04:08 IST; 22s ago
+       Docs: https://dev.mysql.com/doc/refman/en/
+    Process: 1589086 ExecStartPre=/bin/mkdir -m 755 -p /mysql/data (code=exited, status=0/SUCCESS)
+    Process: 1589087 ExecStart=/opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid (code=exited, status=0/SUCCESS)
+    Process: 1589136 ExecStartPost=/bin/chown -R mysql:mysql /mysql/data (code=exited, status=0/SUCCESS)
+   Main PID: 1589089 (mysqld)
+      Tasks: 38 (limit: 9351)
+     Memory: 351.9M
+        CPU: 827ms
+     CGroup: /system.slice/mysql.service
+             └─1589089 /opt/mysql/bin/mysqld --daemonize --user=mysql --datadir=/mysql/data --pid-file=/mysql/mysqld.pid
+
+Feb 13 13:04:07  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:07.335099Z 0 [Warning] [MY-010139] [Server] Changed limits: max_open_files: 5000 (requested 816>
+Feb 13 13:04:07  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:07.335117Z 0 [Warning] [MY-010142] [Server] Changed limits: table_open_cache: 2419 (requested 4>
+Feb 13 13:04:07  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:07.634882Z 0 [System] [MY-010116] [Server] /opt/mysql/bin/mysqld (mysqld 8.0.28) starting as pr>
+Feb 13 13:04:07  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:07.659977Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+Feb 13 13:04:07  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:07.851709Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+Feb 13 13:04:08  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:08.022717Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+Feb 13 13:04:08  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:08.022826Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encryp>
+Feb 13 13:04:08  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:08.048743Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' p>
+Feb 13 13:04:08  dev-subrahmanym-database mysqld[1589089]: 2025-02-13T07:34:08.048809Z 0 [System] [MY-010931] [Server] /opt/mysql/bin/mysqld: ready for connections. Versio>
+Feb 13 13:04:08  dev-subrahmanym-database systemd[1]: Started MySQL Community Server.
+
+root@ dev-subrahmanym-database:/# Secure MySQL installation:
+
+Run the mysql_secure_installation script to set up a root password and secure MySQL:
+root@ dev-subrahmanym-database:/# --------------------------------------------------------
+root@ dev-subrahmanym-database:/# sudo /opt/mysql/bin/mysql_secure_installation
+
+Securing the MySQL server deployment.
+
+Enter password for user root:
+Error: Access denied for user 'root'@'localhost' (using password: YES)
+root@ dev-subrahmanym-database:/#
+root@ dev-subrahmanym-database:/# sudo /opt/mysql/bin/mysql_secure_installation
+
+Securing the MySQL server deployment.
+
+Enter password for user root:
+
+The existing password for the user account root has expired. Please set a new password.
+
+New password:
+
+Re-enter new password:
+
+VALIDATE PASSWORD COMPONENT can be used to test passwords
+and improve security. It checks the strength of password
+and allows the users to set only those passwords which are
+secure enough. Would you like to setup VALIDATE PASSWORD component?
+Press y|Y for Yes, any other key for No: Y
+There are three levels of password validation policy:
+LOW    Length >= 8
+MEDIUM Length >= 8, numeric, mixed case, and special characters
+STRONG Length >= 8, numeric, mixed case, special characters and dictionary                  file
+Please enter 0 = LOW, 1 = MEDIUM and 2 = STRONG: 1
+Using existing password for root.
+Estimated strength of the password: 100
+Change the password for root ? ((Press y|Y for Yes, any other key for No) : N
+ ... skipping.
+By default, a MySQL installation has an anonymous user,
+allowing anyone to log into MySQL without having to have
+a user account created for them. This is intended only for
+testing, and to make the installation go a bit smoother.
+You should remove them before moving into a production
+environment.
+Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y
+Success.
+Normally, root should only be allowed to connect from
+'localhost'. This ensures that someone cannot guess at
+the root password from the network.
+Disallow root login remotely? (Press y|Y for Yes, any other key for No) : n
+ ... skipping.
+By default, MySQL comes with a database named 'test' that
+anyone can access. This is also intended only for testing,
+and should be removed before moving into a production
+environment.
+Remove test database and access to it? (Press y|Y for Yes, any other key for No) : n
+ ... skipping.
+Reloading the privilege tables will ensure that all changes
+made so far will take effect immediately.
+
+Reload privilege tables now? (Press y|Y for Yes, any other key for No) : y
+Success.
+
+All done!
+root@ dev-subrahmanym-database:/# Connect to MySQL
+Log in to MySQL using the root user:
+
+After completing the installation and securing the server, you can log in to MySQL with the root password you set:
+root@ dev-subrahmanym-database:/# =================================================================
+root@ dev-subrahmanym-database:/#
+root@ dev-subrahmanym-database:/# sudo /opt/mysql/bin/mysql -u root -p
+/opt/mysql/bin/mysql: error while loading shared libraries: libtinfo.so.5: cannot open shared object file: No such file or directory
+root@ dev-subrahmanym-database:/#  # Troubleshooting and fixing as below
+root@ dev-subrahmanym-database:/# sudo apt update
+Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Hit:2 http://in.archive.ubuntu.com/ubuntu jammy InRelease
+Hit:3 https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 InRelease
+Get:4 http://in.archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Hit:5 https://repo.zabbix.com/zabbix-agent2-plugins/1/ubuntu jammy InRelease
+Hit:6 https://repo.zabbix.com/zabbix/6.0/ubuntu jammy InRelease
+Hit:7 http://in.archive.ubuntu.com/ubuntu jammy-backports InRelease
+Fetched 257 kB in 2s (114 kB/s)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+75 packages can be upgraded. Run 'apt list --upgradable' to see them.
+root@ dev-subrahmanym-database:/# sudo apt install libncurses5
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libtinfo5
+The following NEW packages will be installed:
+  libncurses5 libtinfo5
+0 upgraded, 2 newly installed, 0 to remove and 75 not upgraded.
+Need to get 207 kB of archives.
+After this operation, 883 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://in.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libtinfo5 amd64 6.3-2ubuntu0.1 [100 kB]
+Get:2 http://in.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libncurses5 amd64 6.3-2ubuntu0.1 [107 kB]
+Fetched 207 kB in 2s (113 kB/s)
+Selecting previously unselected package libtinfo5:amd64.
+(Reading database ... 110533 files and directories currently installed.)
+Preparing to unpack .../libtinfo5_6.3-2ubuntu0.1_amd64.deb ...
+Unpacking libtinfo5:amd64 (6.3-2ubuntu0.1) ...
+Selecting previously unselected package libncurses5:amd64.
+Preparing to unpack .../libncurses5_6.3-2ubuntu0.1_amd64.deb ...
+Unpacking libncurses5:amd64 (6.3-2ubuntu0.1) ...
+Setting up libtinfo5:amd64 (6.3-2ubuntu0.1) ...
+Setting up libncurses5:amd64 (6.3-2ubuntu0.1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+Scanning processes...
+Scanning candidates...
+Scanning linux images...
+
+Restarting services...
+Service restarts being deferred:
+ systemctl restart ModemManager.service
+ systemctl restart cron.service
+ /etc/needrestart/restart.d/dbus.service
+ systemctl restart irqbalance.service
+ systemctl restart mongod.service
+ systemctl restart multipathd.service
+ systemctl restart networkd-dispatcher.service
+ systemctl restart open-vm-tools.service
+ systemctl restart packagekit.service
+ systemctl restart polkit.service
+ systemctl restart rpcbind.service
+ systemctl restart rsyslog.service
+ systemctl restart ssh.service
+ systemctl restart systemd-journald.service
+ systemctl restart systemd-logind.service
+ systemctl restart systemd-networkd.service
+ systemctl restart systemd-resolved.service
+ systemctl restart systemd-timesyncd.service
+ systemctl restart systemd-udevd.service
+ systemctl restart udisks2.service
+ systemctl restart unattended-upgrades.service
+ systemctl restart upower.service
+ systemctl restart user@1000.service
+ systemctl restart user@1001.service
+ systemctl restart vgauth.service
+ systemctl restart zabbix-agent.service
+ systemctl restart zabbix-agent2.service
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+root@ dev-subrahmanym-database:/# sudo find /lib /usr/lib -name "libtinfo.so*"
+/usr/lib/x86_64-linux-gnu/libtinfo.so.5.9
+/usr/lib/x86_64-linux-gnu/libtinfo.so.6
+/usr/lib/x86_64-linux-gnu/libtinfo.so.6.3
+/usr/lib/x86_64-linux-gnu/libtinfo.so.5
+root@ dev-subrahmanym-database:/#
+root@ dev-subrahmanym-database:/# sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5
+ln: failed to create symbolic link '/lib/x86_64-linux-gnu/libtinfo.so.5': File exists
+root@ dev-subrahmanym-database:/# sudo /opt/mysql/bin/mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 8.0.28 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show dbs
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'dbs' at line 1
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql>
