@@ -1,0 +1,161 @@
+root@ dev-subrahmanym-database:/mysql# To completely remove MySQL from your Ubuntu system : 
+root@ dev-subrahmanym-database:/mysql# --------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# Step 1: Stop MySQL Service 
+root@ dev-subrahmanym-database:/mysql#  
+root@ dev-subrahmanym-database:/mysql# ---------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo systemctl stop mysql
+root@ dev-subrahmanym-database:/mysql# sudo systemctl status mysql
+○ mysql.service - MySQL Community Server
+     Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: inactive (dead) since Thu 2025-02-13 11:44:43 IST; 13s ago
+    Process: 1585713 ExecStart=/usr/sbin/mysqld (code=exited, status=0/SUCCESS)
+   Main PID: 1585713 (code=exited, status=0/SUCCESS)
+     Status: "Server shutdown complete"
+        CPU: 14.099s
+
+Feb 13 11:09:21  dev-subrahmanym-database systemd[1]: Starting MySQL Community Server...
+Feb 13 11:09:22  dev-subrahmanym-database systemd[1]: Started MySQL Community Server.
+Feb 13 11:44:42  dev-subrahmanym-database systemd[1]: Stopping MySQL Community Server...
+Feb 13 11:44:43  dev-subrahmanym-database systemd[1]: mysql.service: Deactivated successfully.
+Feb 13 11:44:43  dev-subrahmanym-database systemd[1]: Stopped MySQL Community Server.
+Feb 13 11:44:43  dev-subrahmanym-database systemd[1]: mysql.service: Consumed 14.099s CPU time.
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 2: Uninstall MySQL Server Package 
+root@ dev-subrahmanym-database:/mysql# --------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# To uninstall the MySQL server package, run: 
+root@ dev-subrahmanym-database:/mysql# ------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo apt-get remove --purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Note, selecting 'mysql-server-core-5.5' for glob 'mysql-server-core-*'
+Note, selecting 'mysql-server-core-5.6' for glob 'mysql-server-core-*'
+Note, selecting 'mysql-server-core-5.7' for glob 'mysql-server-core-*'
+Note, selecting 'mysql-server-core-8.0' for glob 'mysql-server-core-*'
+Package 'mysql-server-core-5.7' is not installed, so not removed
+Package 'mysql-server-core-5.5' is not installed, so not removed
+Package 'mysql-server-core-5.6' is not installed, so not removed
+Note, selecting 'mysql-client-core-5.5' for glob 'mysql-client-core-*'
+Note, selecting 'mysql-client-core-5.6' for glob 'mysql-client-core-*'
+Note, selecting 'mysql-client-core-5.7' for glob 'mysql-client-core-*'
+Note, selecting 'mysql-client-core-8.0' for glob 'mysql-client-core-*'
+Package 'mysql-client-core-5.7' is not installed, so not removed
+Package 'mysql-client-core-5.5' is not installed, so not removed
+Package 'mysql-client-core-5.6' is not installed, so not removed
+Package 'mysql-client' is not installed, so not removed
+The following packages were automatically installed and are no longer required:
+  libcgi-fast-perl libcgi-pm-perl libclone-perl libencode-locale-perl libevent-pthreads-2.1-7 libfcgi-bin libfcgi-perl libfcgi0ldbl libhtml-parser-perl
+  libhtml-tagset-perl libhtml-template-perl libhttp-date-perl libhttp-message-perl libio-html-perl liblwp-mediatypes-perl libmecab2 libprotobuf-lite23
+  libtimedate-perl liburi-perl mecab-ipadic mecab-ipadic-utf8 mecab-utils
+Use 'sudo apt autoremove' to remove them.
+The following packages will be REMOVED:
+  mysql-client-8.0* mysql-client-core-8.0* mysql-common* mysql-server* mysql-server-8.0* mysql-server-core-8.0*
+0 upgraded, 0 newly installed, 6 to remove and 75 not upgraded.
+After this operation, 185 MB disk space will be freed.
+Do you want to continue? [Y/n] Y
+(Reading database ... 111134 files and directories currently installed.)
+Removing mysql-server (8.0.41-0ubuntu0.22.04.1) ...
+Removing mysql-server-8.0 (8.0.41-0ubuntu0.22.04.1) ...
+update-alternatives: using /etc/mysql/my.cnf.fallback to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+Removing mysql-client-8.0 (8.0.41-0ubuntu0.22.04.1) ...
+Removing mysql-client-core-8.0 (8.0.41-0ubuntu0.22.04.1) ...
+Removing mysql-common (5.8+1.0.8) ...
+Removing mysql-server-core-8.0 (8.0.41-0ubuntu0.22.04.1) ...
+Processing triggers for man-db (2.10.2-1) ...
+(Reading database ... 110920 files and directories currently installed.)
+Purging configuration files for mysql-server-8.0 (8.0.41-0ubuntu0.22.04.1) ...
+Purging configuration files for mysql-common (5.8+1.0.8) ...
+dpkg: warning: while removing mysql-common, directory '/etc/mysql' not empty so not removed
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 3: Remove Unnecessary Dependencies
+Once MySQL is removed, there may be some unnecessary packages left behind. You can clean them up by running: 
+root@ dev-subrahmanym-database:/mysql# -------------------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo apt-get autoremove
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages will be REMOVED:
+  libcgi-fast-perl libcgi-pm-perl libclone-perl libencode-locale-perl libevent-pthreads-2.1-7 libfcgi-bin libfcgi-perl libfcgi0ldbl libhtml-parser-perl
+  libhtml-tagset-perl libhtml-template-perl libhttp-date-perl libhttp-message-perl libio-html-perl liblwp-mediatypes-perl libmecab2 libprotobuf-lite23
+  libtimedate-perl liburi-perl mecab-ipadic mecab-ipadic-utf8 mecab-utils
+0 upgraded, 0 newly installed, 22 to remove and 75 not upgraded.
+After this operation, 58.0 MB disk space will be freed.
+Do you want to continue? [Y/n] Y
+(Reading database ... 110900 files and directories currently installed.)
+Removing libcgi-fast-perl (1:2.15-1) ...
+Removing libhtml-template-perl (2.97-1.1) ...
+Removing libcgi-pm-perl (4.54-1) ...
+Removing libclone-perl (0.45-1build3) ...
+Removing libhttp-message-perl (6.36-1) ...
+Removing libencode-locale-perl (1.05-1.1) ...
+Removing libevent-pthreads-2.1-7:amd64 (2.1.12-stable-1build3) ...
+Removing libfcgi-bin (2.4.2-2build2) ...
+Removing libfcgi-perl:amd64 (0.82+ds-1build1) ...
+Removing libfcgi0ldbl:amd64 (2.4.2-2build2) ...
+Removing libhtml-parser-perl:amd64 (3.76-1build2) ...
+Removing libhtml-tagset-perl (3.20-4) ...
+Removing libhttp-date-perl (6.05-1) ...
+Removing libio-html-perl (1.004-2) ...
+Removing liblwp-mediatypes-perl (6.04-1) ...
+Removing mecab-ipadic-utf8 (2.7.0-20070801+main-3) ...
+update-alternatives: using /var/lib/mecab/dic/ipadic to provide /var/lib/mecab/dic/debian (mecab-dictionary) in auto mode
+Removing mecab-ipadic (2.7.0-20070801+main-3) ...
+Removing mecab-utils (0.996-14build9) ...
+Removing libmecab2:amd64 (0.996-14build9) ...
+Removing libprotobuf-lite23:amd64 (3.12.4-1ubuntu7.22.04.1) ...
+Removing libtimedate-perl (2.3300-2) ...
+Removing liburi-perl (5.10-1) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 4: Delete MySQL Data Directory
+By default, MySQL stores its data in /var/lib/mysql. To remove all databases and the data directory, 
+root@ dev-subrahmanym-database:/mysql# --------------------------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /var/lib/mysql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# cd /var/lib/mysql
+-bash: cd: /var/lib/mysql: No such file or directory
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 5: Remove MySQL Configuration Files
+MySQL's configuration files are usually stored in /etc/mysql. You can delete this directory as well to remove any remaining configuration files: 
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# --------------------------------------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /etc/mysql
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 6: Remove MySQL Logs and Other Files
+To ensure all MySQL logs and other files are removed, you can delete the following directories (if they exist): 
+root@ dev-subrahmanym-database:/mysql# ------------------------------------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /var/log/mysql
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /var/log/mysql.*
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /var/lib/mysql-files
+root@ dev-subrahmanym-database:/mysql# sudo rm -rf /var/lib/mysql-keyring
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 7: Remove MySQL User and Group (Optional)
+MySQL creates a user and group during installation. You can remove them if you no longer need them: 
+root@ dev-subrahmanym-database:/mysql# -------------------------------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo deluser mysql
+Removing user `mysql' ...
+Warning: group `mysql' has no more members.
+Done.
+root@ dev-subrahmanym-database:/mysql# sudo delgroup mysql
+The group `mysql' does not exist.
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 8: Clean Package Cache (Optional)
+To clean the package cache and free up space, you can run:
+ 
+root@ dev-subrahmanym-database:/mysql# ---------------------------------------------- 
+root@ dev-subrahmanym-database:/mysql# sudo apt-get clean
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql#
+root@ dev-subrahmanym-database:/mysql# Step 9: Verify MySQL is Removed
+To ensure that MySQL has been fully removed from your system, you can check if the MySQL service is still available: 
+root@ dev-subrahmanym-database:/mysql# ------------------------------------------------------------------------ 
+root@ dev-subrahmanym-database:/mysql# sudo systemctl status mysql
+Unit mysql.service could not be found.
+root@ dev-subrahmanym-database:/mysql#
