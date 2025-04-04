@@ -1,0 +1,222 @@
+Basic MySQL Interview Questions
+1. What is MySQL?
+MySQL is a relational database management system based on SQL (Structured Query Language). It is an open source software owned by Oracle and can run on various platforms. Most websites or web applications are developed using MySQL.
+
+2. In which language has MySQL been written?
+MySQL is written in C and C++. Its SQL parser is written in yacc. 
+
+3. What are the advantages of using MySQL?
+MySQL is a fast, stable, and reliable solution that provides advantages like:
+
+Data Security – most secure and reliable database management system
+Flexibility – runs on all operating systems; features 24X7 support and enterprise indemnification
+High Performance – powerful, designed to meet highly demanding applications while maintaining optimum speed and high performance
+On-demand Scalability – offers on-demand scalability and complete customization
+Enterprise-level SQL Features – the enterprise edition includes advanced features and management tools, and technical support for enterprise
+Full-text Indexing and Searching – has support for full-text indexing and searching
+Query Caching – unique memory caches help enhance the speed of MySQL greatly
+Replication – one MySQL server can be duplicated on another, resulting in numerous benefits
+4. What is a database?
+A database is a structured repository of data stored electronically in a computer system and organized in a way that data can be quickly searched and information rapidly retrieved. A database is generally controlled by a database management system.
+
+5. What does 'MySQL' stand for?
+'My' in MySQL represents the first name of its co-founder, Michael Widenius' daughter, My Widenius. SQL is an abbreviation for the term "Structured Query Language". SQL is also used in databases like Oracle and Microsoft SQL Server. 
+
+6. How to check MySQL version?
+The command 'MySQL-v' can be used to check MySQL version on Linux
+
+7. What does a MySQL database contain?
+A MySQL database contains one or many tables, with each table containing several records or rows. Within these rows, data is contained in various columns or fields. 
+
+8. List the ways to interact with MySQL.
+There are 3 main ways users can interact with MySQL:
+
+Using a command line
+Through a web interface
+Using a programming language
+9. What are the different tables in MySQL?
+They are:
+
+MyISAM
+HeapMerge
+INNO DB
+ISAM
+10. What are MySQL Database Queries?
+A query is a request for data or information from a database. Users can query a database for specific information, and the resultant record/records are returned by MySQL.  
+11. What are some common MySQL commands?
+Some common MySQL commands are:
+
+CREATE – To create Table
+INSERT – To insert data
+JOIN – To join tables
+DELETE – To delete a row from a table
+ALTER – To alter database or table
+BACKUP – to back up a table
+DROP – To delete a database or table
+CREATE INDEX – to add indexing to a column in a table
+GRANT – To change user privileges
+TRUNCATE – Empty a table
+EXIT – to exit
+12. How to create a database in MySQL?
+The CREATE DATABASE command can be used to create a new database.
+
+13. How to create table using MySQL?
+The following query can be used to create a table:
+
+CREATE TABLE 'history' (
+
+'author' VARCHAR(128),
+
+'title' VARCHAR(128),
+
+'type' VARCHAR(16),
+
+'year' CHAR(4)) 
+
+ENGINE = InnoDB;  
+
+A table "history" gets created in the selected database.
+
+14. How to insert data in MySQL?
+The INSERT INTO statement is used to insert new records in a table in MySQL. 
+
+The two main syntaxes are:
+
+INSERT INTO table_name (column 1, column 2, column 3,…columnN) 
+
+VALUES (value 1, value 2, value 3,...valueN)
+
+15. How do you remove a column form a database?
+The DROP command is used to remove a column from a database.
+
+Alter table 'history' drop column title;
+
+16. How to create an index?
+There are different types of indexes in MySQL, like a regular INDEX, a PRIMARY KEY, or a FULLTEXT index. Indexes are created on a column basis. Indexing helps to quickly search for results, either by ordering the data on disk or by telling the SQL engine which location to find your data in.
+
+Syntax:
+
+ALTER TABLE history ADD INDEX(author(10));
+
+17. How do you delete data from MySQL table?
+We use the DELETE statement to remove records from a table.
+
+The syntax is as follows:
+
+DELETE FROM table_name WHERE column_name
+
+18. How can you view a database in MySQL?
+The SHOW DATABASES command allows the user to view all databases on the MySQL server host. 
+
+mysql> SHOW DATABASES;  
+
+19. How to import database in MySQL?
+There are two ways to import database or move data from one place to another:
+
+Command Line Tool
+MySQL Workbench
+20. What are numeric data types in MySQL?
+There are numeric data types for integer, fixed-point, floating-point, and bit values in MySQL. Except for BIT, the other numeric data types can be signed or unsigned.
+
+Examples: 
+
+INT - Standard Integer
+
+TINYINT - Very Small Integer
+
+SMALLINT - Small Integer
+
+MEDIUMINT - Medium-sized Integer
+
+BIGINT - Large Integer
+
+DECIMAL - Fixed-point number
+
+FLOAT - Single-precision floating-point number
+
+DOUBLE - Double-precision floating-point number
+
+BIT - Bit-field
+
+21. What are string data types in MySQL?
+The string data types in MySQL are:
+
+CHAR
+VARCHAR
+BINARY
+VARBINARY
+TINYBLOB
+BLOB
+MEDIUMBLOB
+LONGBLOB
+TINYTEXT
+TEXT
+MEDIUMTEXT
+LONGTEXT
+ENUM
+SET
+NULL
+22. What are temporal data types in MySQL?
+MySQL provides temporal data types for date and time, as well as a combination of date and time. These are:
+
+DATE - A date value in CCYY-MM-DD Format
+
+TIME - A Time value in hh : mm :ss format
+
+DATETIME - Date and time value in CCYY-MM-DD hh : mm :ss format
+
+TIMESTAMP - A timestamp value in CCYY-MM-DD hh : mm :ss format
+
+YEAR - A year value in CCYY or YY format
+
+23. What is BLOB?
+BLOB is an acronym for a binary large object. It is a string data type used to hold a variable amount of data.
+
+24. How do you add users in MySQL?
+The CREATE command, along with necessary credentials, can be used to add users.
+
+CREATE USER 'testuser' IDENTIFIED BY 'sample password';
+
+Intermediate MySQL Interview Questions
+25. What are views in MySQL?
+A view is a set of rows returned when a particular query is executed in MySQL. It is also known as a virtual table, which does not store any data of its own but displays data stored in other tables.
+
+26. How to create and execute views?
+The CREATE VIEW command is used to create a view in MySQL.
+
+The syntax is:
+
+CREATE VIEW [databasename.] view_name [(column_list)] AS select-statement;
+
+27. What are MySQL triggers?
+A task that is executed automatically in response to a predefined database event is known as a trigger. Each trigger is associated with a table and is activated by commands like INSERT, DELETE, or UPDATE.
+
+28. How many triggers are possible in MySQL?
+There are 6 different types of triggers in MySQL:
+
+Before Insert
+After Insert
+Before Update
+After Update
+Before Delete
+After Delete
+29. What is MySQL server?
+The server 'mysqld' is the MySQL server, which performs all manipulation of databases and tables. 
+
+30. What are the clients and utilities in MySQL?
+There are several MSQL programs available to help users communicate with the server. Some important ones for administrative tasks are:
+
+.mysql – this interactive program helps to send SQL statements to the server and view the results. One can even use MySQL to use batch scripts.
+
+.mysqladmin – this administrative program helps perform tasks like shutting down the server, checking configuration, monitoring status if it is not functioning properly. 
+
+.mysqldump – for backing up databases or copying them to another server
+
+.mysqlcheck and myisamchk – these programs help perform table checking, analysis, and optimization, plus repairs for damaged tables. 
+
+31. What types of relationships are used in MySQL?
+Three types of relationships are used in MySQL:
+
+One-to-one – items with one-to-one relation can be included as columns in the same table
+One-to-many – or many-to-one relationships are seen when one row in a table is related to multiple rows in another table
+Many-to-many – many rows in a table are linked to many rows in another table
