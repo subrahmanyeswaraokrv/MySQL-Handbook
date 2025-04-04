@@ -1,0 +1,733 @@
+Table of Contents
+Introduction
+Top 50 Advanced MySQL Interview Questions
+1. What is the difference between PostgreSQL and MySQL?
+2. What are the most common functions in MySQL Server?
+3. Write the MySQL query to find the 5 highest-paid salaries of employees for each department in descending order.
+4. Imagine there is a StudentDonationtable that contains fees paid by the students. Write a MySQL query to find out the Nth highest donation paid by the student without using TOP and LIMIT Operator.
+5. What are the three reasons for using Function in MySQL?
+6. What do ROLLUP, GROUPING SETS, and CUBE Do in T-SQL?​
+7. How do we find the total sales for each month of the current year and months with zero sales?
+8. Explain the lock in the MySQL server.
+9. By dividing by 2, how do we retrieve the even and odd rows from a table?
+10. Is it possible to perform insert, update, and delete operations from the function in the database?
+11. How to install MySQL in Linux?
+12. Write the MySQL query to display all customers who have purchased every month for the last eight months.
+13. What is the difference between a deadlock and a Livelock?
+14. Write the Syntactical Flow of MySQL Query.
+15. Show how to calculate the running total of sales for each day within the past month.
+16. What is the difference between SQL and MySQL?
+17. Write a query using a recursive CTE to fetch all students and their score in a hierarchical structure.
+18. Why do we use the ORDER BY clause?
+19. What is Coalesce() and IsNull()?
+20. What is the difference between a Function and a Stored Procedure?
+21. Why do we use the MySQL window function?
+22. Write the SQL query to show self-referencing the foreign key.
+23. Show with the help of MySQL query how we use Subquery.
+24. What is MySQL query to find the Amazon products sold in all cities where it operates?
+25. What is the main difference between a temporary table and a table variable?
+26. Let's say there is a KidHealthCheckup table, and you need to find the minimum and maximum consultation fee from it. How do we write the query?
+27. What is SQL?
+28. Which SQL clauses are used in conjunction with a SELECT query?
+29. Explain the difference between the LAG and LEAD Functions using an example.
+30. What is the difference between clustered indexes and non-clustered indexes?
+31. Write a MySQL query to find the list of 30 customers who have spent most of their earnings on a single purchase?
+32. When do use Tigger in MySQL?
+33. What is the MySQL query to find the employees who manage the same number of employees as their manager?
+34. How do we identify the name of the process that blocks the database resource?
+35. What is the difference between Commit and Rollback?
+36. Write a MySQL query so that we get the output the following way.
+37. What are the benefits of using stored procedures?
+38. Which MySQL query do we use to calculate each product's 30-day moving average of sales?
+39. Show the MySQL query to find out all the average salaries that is higher than the company’s overall average salary along with the departments.
+40. What are the different types of replication servers?
+41. What is the MySQL query to copy all the columns into a new table?
+42. What are the Magic Tables in MySQL?
+43. What is the difference between materialized views and non-materialized views?
+44. List some drawbacks of MySQL.
+45. Let's consider that you have an Employee table that only accepts the values that are greater than 0. Write a MySQL query for this.
+46. Why do we use a SQL subquery? Write its syntax.
+47. What Is a Subquery in T-SQL?
+48. What is the difference between Stored Procedure and Function?
+49. Write a syntax to create a table in MySQL Server.
+50. What do you mean by MySQL connector maven?
+Conclusion
+FAQs
+Pointer image icon
+Introduction
+If you want to get into roles like data analyst or data scientist, then you must master this advanced MySQL interview question to meet the demands of these positions. In this blog, I have compiled the Top 50 Advanced Interview Questions with answers to help you prepare for your upcoming interview.
+
+best software companies
+Don't miss out on your chance to work with the best
+Apply for top global job opportunities today!
+
+Register Now
+Pointer image icon
+Top 50 Advanced MySQL Interview Questions
+1. What is the difference between PostgreSQL and MySQL?
+PostgreSQL	MySQL
+PostgreSQL is an object-relational database management system and supports multiple indexes. 	Whereas, MySQL is a relational database management system, and it supports B-tree and R-tree indexes.
+PostgreSQL supports data types such as numeric, character, date and time, spatial, and JSON.	MySQL supports enumerated, network addresses, arrays, ranges, XML, hstore, composite, and MySQL data types.
+2. What are the most common functions in MySQL Server?
+The most used functions in MySQL servers are String functions, Numeric functions, Date and time functions, Aggregate functions, and Other functions. 
+
+String functions consist of CONCAT(), LEFT(), RIGHT() & SUBSTRING() LEN(), LTRIM(), RTRIM() & TRIM(), REPLACE(), LOWER() and UPPER(). 
+Numeric functions contain ABS(), and ROUND(). 
+Data and time functions consist of DATEDIFF(), CURRENT_TIMESTAMP(), DATEADD(), DAY(), MONTH(), YEAR(). 
+Aggregate functions consist of COUNT(), SUM(), AVG(), MIN(), and MAX(). 
+Lastly, CAST() & CONVERT(), COALESCE(), ISNULL(), and NULLIF() comes under other functions. 
+3. Write the MySQL query to find the 5 highest-paid salaries of employees for each department in descending order.
+Let’s assume that we have an Employee table with columns emp_id, dept_id, and salary. The following is a query to retrieve the 5 highest-paid salaries for employess in descending order: 
+
+WITH RankedEmployees AS ( 
+
+  SELECT 
+
+    employee_id, 
+
+    department_id, 
+
+    salary, 
+
+    ROW_NUMBER() OVER (PARTITION BY department_id ORDER BY salary DESC) AS rank 
+
+  FROM employees 
+
+)
+
+SELECT 
+
+  employee_id, 
+
+  department_id, 
+
+  salary 
+
+FROM RankedEmployees 
+
+WHERE rank <= 5 
+
+ORDER BY department_id, rank; 
+ Must Read: What is an SQL Database? 
+4. Imagine there is a StudentDonationtable that contains fees paid by the students. Write a MySQL query to find out the Nth highest donation paid by the student without using TOP and LIMIT Operator.
+SELECT Donation 
+
+FROM StudentDonationTable F1 
+
+WHERE N-1 = ( 
+
+      SELECT COUNT( DISTINCT ( F2.Donation ) ) 
+
+      FROM StudentDonationTable F2 
+
+      WHERE F2.Donation > F1.Donation );
+5. What are the three reasons for using Function in MySQL?
+User-defined functions can help to decompose a large program into small segments. 
+It makes the program easy to maintain and debug. 
+By creating functions, we can reuse the code and execute them by calling that function, whenever necessary. 
+6. What do ROLLUP, GROUPING SETS, and CUBE Do in T-SQL?​
+These functions are expansions of GROUP BY: 
+
+ROLLUP: It lets you make multiple grouping sets, adding subtotals and grand totals.  
+GROUPING SETS: It lets you specify multiple grouping sets, similar to combining multiple GROUP BY clauses, but in a single query.  
+CUBE: It creates groups for all possible combinations of columns and includes subtotals. 
+7. How do we find the total sales for each month of the current year and months with zero sales?
+We need to use LEFT JOIN between the Months CTE and the EXTRACT() function and COALESCE function. The following is the SQL query: 
+
+WITH Months AS ( 
+
+  SELECT 1 AS month_number UNION ALL 
+
+  SELECT 2 UNION ALL 
+
+  SELECT 3 UNION ALL 
+
+  SELECT 4 UNION ALL 
+
+  SELECT 5 UNION ALL 
+
+  SELECT 6 UNION ALL 
+
+  SELECT 7 UNION ALL 
+
+  SELECT 8 UNION ALL 
+
+  SELECT 9 UNION ALL 
+
+  SELECT 10 UNION ALL 
+
+  SELECT 11 UNION ALL 
+
+  SELECT 12 
+
+) 
+
+SELECT 
+
+  Months.month_number, 
+
+  COALESCE(SUM(s.sale_amount), 0) AS total_sales 
+
+FROM 
+
+  Months 
+
+LEFT JOIN 
+
+  ( 
+
+    SELECT 
+
+      EXTRACT(MONTH FROM sale_date) AS month, 
+
+      sale_amount 
+
+    FROM 
+
+      sales 
+
+    WHERE 
+
+      EXTRACT(YEAR FROM sale_date) = EXTRACT(YEAR FROM CURRENT_DATE) 
+
+  ) AS s 
+
+ON 
+
+  Months.month_number = s.month 
+
+GROUP BY 
+
+  Months.month_number 
+
+ORDER BY 
+
+  Months.month_number; 
+8. Explain the lock in the MySQL server.
+Locks are important to maintain transaction concurrency. Whenever multiple users access the same database simultaneously, SQL Server processes the query, checks for the data resources used, and then applies a lock to safeguard them. The following are the lock modes in SQL Server: 
+
+Shared (S) Lock Mode: It is used with the SELECT statement and for read-only data. It prevents making changes in data while executing the query. 
+Update (U) Lock Mode: It is used to modify the particular data. It prevents deadlocks when the transaction is ready to modify the U convert into the X lock. 
+Exclusive (X) Lock Mode: It ensures that only one transaction can update the same data at a time and is used with commands like INSERT, UPDATE, and DELETE. 
+Bulk Update (BU) Lock Mode: Imposed when data is copied in bulk, often used with the TABLOCK hint. 
+Intent (I) Lock Mode: It manages the lock hierarchy and checks how the locks are coordinated at different levels. It signals the intention of the transaction and imposes the lock (S) or (X) on data. By doing so, it prevents conflicts in the transactions. It is of three types of intent intent shared (IS), intent exclusive (IX), and shared with intent exclusive (SIX) locks. 
+Key-Range Lock Mode: Used in serializable transaction isolation levels to prevent data anomaly, where the same query returns different results each time it runs. 
+Schema (Sch) Lock Mode: It is used for schema-dependent operations. Schema modification (Sch-M) lock for DDL statements (CREATE, ALTER, DROP). It prevents data access during structure modification, while schema stability (Sch-S) lock allows other locks except Sch-M during schema-dependent transactions. 
+9. By dividing by 2, how do we retrieve the even and odd rows from a table?
+Let’s assume that we have a student table and to retrieve the even and odd rows in the MySQL server the following is the query. 
+
+SELECT * FROM ( 
+
+    SELECT *, ROW_NUMBER() OVER(ORDER BY StudentId) AS RowNumber 
+
+    FROM Student 
+
+) P 
+
+WHERE S.RowNumber % 2 = 0; 
+
+Fetch even rows in MySQL 
+
+SELECT * FROM ( 
+
+      SELECT *, @rowNumber := @rowNumber+ 1 rn 
+
+      FROM Student 
+
+      JOIN (SELECT @rowNumber:= 0) r 
+
+     ) p  
+
+WHERE rn % 2 = 0; 
+
+In case you wish to find the odd rows, then the remainder when divided by 2 should be 1 
+
+SELECT * FROM ( 
+
+    SELECT *, ROW_NUMBER() OVER(ORDER BY StudentId) AS RowNumber 
+
+    FROM Student 
+
+) S 
+
+WHERE S.RowNumber % 2 = 1; 
+
+Fetch odd rows in MySQL 
+
+SELECT * FROM ( 
+
+      SELECT *, @rowNumber := @rowNumber+ 1 rn 
+
+      FROM Student 
+
+      JOIN (SELECT @rowNumber:= 0) r 
+
+     ) s  
+
+WHERE rn % 2 = 1; 
+10. Is it possible to perform insert, update, and delete operations from the function in the database?
+No, we can not. Functions only have READ-ONLY Database Access therefore, it is not possible to perform insert, update, and delete operations. 
+
+11. How to install MySQL in Linux?
+First, you need to update the package and install the MySQL APT repository. 
+Once done, you can install MySQL server and client packages. 
+While the installation process is going on, it will prompt you to set a password for the MySQL root user. 
+Use the command line or directly install MySQL Workbench. 
+Once it is installed, you can use various client tools like the command-line client (MySQL), MySQL Workbench, or any other graphical tools to connect to the MySQL server. 
+12. Write the MySQL query to display all customers who have purchased every month for the last eight months.
+The following query displays the list of customer_id: 
+
+SELECT customer_id 
+
+FROM purchases 
+
+WHERE purchase_date >= DATE_SUB(CURRENT_DATE, INTERVAL 8 MONTH) 
+
+GROUP BY customer_id 
+
+HAVING COUNT(DISTINCT EXTRACT(YEAR_MONTH FROM purchase_date)) = 8; 
+13. What is the difference between a deadlock and a Livelock?
+Deadlock	Livelock
+It occurs when two or more processes prevent each other from obtaining a lock.	It occurs when multiple retries and activities cause processes to continuously adapt each with no such progress.
+14. Write the Syntactical Flow of MySQL Query.
+SELECT: It starts with a list of columns or expressions. 
+FROM: Logically query starts from the FROM clause by assembling the initial set of data. 
+WHERE: It acts upon the record set assembled by the FROM clause to filter certain rows based upon conditions. 
+GROUP BY: It groups the larger data set into smaller data sets based on the columns specified. 
+HAVING: It is used to restrict the result of aggregation by GROUP BY. 
+ORDER BY: It determines the sort order of the result set. 
+Also Read: JSON vs SQL Overview 
+15. Show how to calculate the running total of sales for each day within the past month.
+We order the results by sale_date to display the running total for each day within the past month. The following MySQL query retrieves the date and running_total that represent the cumulative sales up to and including each day within the past month: 
+
+SELECT 
+
+  sale_date, 
+
+  SUM(sale_amount) OVER (ORDER BY sale_date) AS running_total 
+
+FROM 
+
+  sales 
+
+WHERE 
+
+  sale_date >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH) 
+
+  AND sale_date <= CURRENT_DATE 
+
+ORDER BY 
+
+  sale_date; 
+16. What is the difference between SQL and MySQL?
+SQL is the Structured Query Language that uses sets of commands or query create, manage, and manipulate data in the relational database. MySQL is the Relational Management System developed by Oracle Corporation for storing databases. 
+
+17. Write a query using a recursive CTE to fetch all students and their score in a hierarchical structure.
+WITH RECURSIVE StudentHierarchy AS ( 
+
+  SELECT std_id, std_name, score_id 
+
+  FROM students 
+
+  WHERE score_id_id IS NULL 
+
+  UNION ALL 
+
+  SELECT s.std_id, s.std_name, s.
+        score_id 
+
+  FROM students s 
+
+  JOIN StudentHierarchy sh ON s.score_id = sh.std_id 
+
+) 
+
+SELECT * FROM StudentHierarchy; 
+18. Why do we use the ORDER BY clause?
+By default, MySQL stores the data in ascending order. Sometimes there is a requirement to generate that data in a descending order. The ORDER BY clause lets us sort the results in ascending order as well as descending order. However, by using the DESC keyword, we can use the ORDER clause to filter the result in the descending order.
+
+19. What is Coalesce() and IsNull()?
+Coalesce(): Returns the first non-null value passed into the param list. 
+IsNull(): Returns the specified value if the passed expression is null; otherwise, it returns the expression. 
+20. What is the difference between a Function and a Stored Procedure?
+Function	Stored Procedure
+It is routine that compute values and cannot alter database objects.	It is a pre-compiled SQL statements that performs a set of actions repeatedly.
+It is of two types i.e., built-in and user-defined	It uses INSERT, UPDATE, and DELETE commands.
+It cannot use the transactions and call functions.	It can use transactions and call functions.
+It works with SELECT, WHERE, and HAVING clauses.	It doesn’t need parameters, isn’t obliged to return results, and can modify database objects.
+It needs one parameter and yields a result.
+21. Why do we use the MySQL window function?
+The SQL window function operates independently on each row. It is used for complex calculations and analyses, such as ranking or aggregating data based on specific criteria. 
+
+22. Write the SQL query to show self-referencing the foreign key.
+CREATE TABLE 'Student' 
+
+'name' VARCHAR(30) NOT NULL, 
+
+'student_id' CHAR(10) NOT NULL, 
+
+'classteacher_id' CHAR(9) NOT NULL, 
+
+'Marks' decimal(15, 7) NULL, 
+
+PRIMARY KEY ('student_id') 
+
+FOREIGN KEY ('classteacher_id') REFERENCE student(student_id) ON DELETE CASCADE 
+23. Show with the help of MySQL query how we use Subquery.
+Generally, subquery is nested inside another query to retrieve data, which is used in the main query. The following is the MySQL query:
+
+SELECT name FROM products 
+
+WHERE category_id IN (SELECT id FROM categories WHERE name = 'Automobile'); 
+This above subquery (SELECT id FROM categories WHERE name = ‘Automobile’) is used to find the category ID for Automobile, which is then used in the main query to retrieve the names of products that belong to that category. 
+
+24. What is MySQL query to find the Amazon products sold in all cities where it operates?
+We need to have three tables i.e., AmazonProd_Table, Sales_Table, and Cities_Table. The following is the MySQL query: 
+
+SELECT p.product_name 
+
+FROM products p 
+
+WHERE NOT EXISTS ( 
+
+  SELECT c.city_name 
+
+  FROM cities c 
+
+  WHERE NOT EXISTS ( 
+
+    SELECT s.product_id 
+
+    FROM sales s 
+
+    WHERE s.product_id = p.product_id 
+
+    AND s.city_id = c.city_id 
+
+  ) 
+
+); 
+Must Read: Fundamental Difference between SQL Database and NoSQL Database 
+25. What is the main difference between a temporary table and a table variable?
+Temporary tables are actual tables that handle large volumes of data. It supports operations like SELECT INTO, ALTER TABLE, and TRUNCATE. But it is only accessible within the session in which they are created. We can also create the index in temporary tables. It can be used in transactions and stored procedures but is not applicable to functions. Whereas tables are local variables stored in the temporary It can be used with functions, batches, and stored procedures. Tables are not suitable for handling large volumes of data.
+
+26. Let's say there is a KidHealthCheckup table, and you need to find the minimum and maximum consultation fee from it. How do we write the query?
+MySQL query to find the minimum consultation fee: 
+
+SELECT DISTINCT ConsultationFees FROM KidHealthCheckup P1 
+
+ WHERE 2 >= (SELECT COUNT(DISTINCT ConsultationFees)FROM KidHealthCheckup P2 
+
+  WHERE P1.ConsultationFees >= P2.ConsultationFees) ORDER BY P1.ConsultationFees DESC; 
+MySQL query to find the minimum consultation fee: 
+
+SELECT DISTINCT ConsultationFees FROM KidHealthCheckup P1 
+
+ WHERE 2 >= (SELECT COUNT(DISTINCT ConsultationFees)FROM KidHealthCheckup P2 
+
+  WHERE P1.ConsultationFees <= P2.ConsultationFees) ORDER BY P1.ConsultationFees DESC 
+27. What is SQL?
+SQL is a programming language used to manage and analyze data in databases. It’s a language designed specifically for working with relational databases i.e. MySQL to organize, store, and retrieve data. 
+
+28. Which SQL clauses are used in conjunction with a SELECT query?
+WHERE, ORDER BY, GROUP BY, and HAVING are the clauses that are often used with SELECT query.  
+
+SELECT * 
+
+FROM myDB.students 
+
+WHERE graduation_year = 2024 
+
+ORDER BY studentID DESC; 
+
+here we use WHERE and ORDER BY with SELECT query.
+
+SELECT COUNT(studentId), country 
+
+FROM myDB.students 
+
+WHERE country != "LONDON" 
+
+GROUP BY country 
+
+HAVING COUNT(studentID) > 10; 
+
+here we use GROUP BY and HAVING  with SELECT query.  
+29. Explain the difference between the LAG and LEAD Functions using an example.
+These two functions are used to fetch the data from the previous row in a specific result set. LAG() is used to retrieve the value of a particular column from the previous and next rows. The LEAD() function, on the other hand, is used to fetch the value from the next row.  The following query is an example to showcase the student’s name and their score from the previous score as well as the next score. The LAG function gets the score from the previous row, and the LEAD function retrieves the score from the next row. One thing common between these functions is that the scores are ordered in descending order using the DESC keyword. 
+
+SELECT name, score, 
+
+LAG(score) OVER (ORDER BY score DESC) AS previous_score, 
+
+LEAD(score) OVER (ORDER BY score DESC) AS next_score 
+
+FROM students 
+30. What is the difference between clustered indexes and non-clustered indexes?
+Clustered Indexes	Non-Clustered Indexes
+It is integral to the table structure that determines the physical order of storage and sorting based on the index key value.	It contain key values, each with a pointer to the data row holding that key value.
+When searching for data, the query scans the table row by row until it locates the specified index.	Nonclustered indexes are organized and stored separately from the indexed tables.
+Each table can have only one clustered index.	It directly access the data row with the specified index without traversing all the data.
+31. Write a MySQL query to find the list of 30 customers who have spent most of their earnings on a single purchase?
+For this, we need to use the MAX() aggregate function and the LIMIT clause to restrict the output value to only 30.
+
+SELECT 
+
+  customer_id, 
+
+  MAX(purchase_amount) AS max_purchase_amount 
+
+FROM 
+
+  purchases 
+
+GROUP BY 
+
+  customer_id 
+
+ORDER BY 
+
+  max_purchase_amount DESC 
+
+LIMIT 30; 
+32. When do use Tigger in MySQL?
+Trigger is a stored procedure that automatically executes when a defined event occurs. Whenever users try to modify table data through INSERT, UPDATE, or DELETE operations. DDL triggers run in response to CREATE, ALTER, or DROP statements. When a user makes a connection to the MySQL server a logon trigger gets activated. For instance, a user might use a DML trigger on a Student Table containing information about their marks. But if someone modifies the student marks, then the trigger could store modified data. 
+
+33. What is the MySQL query to find the employees who manage the same number of employees as their manager?
+In this scenario, we use the inner join between the employee’s table and the subquery. The following query will display the list of employees: 
+
+SELECT e1.employee_id, e1.manager_id 
+
+FROM employees e1 
+
+INNER JOIN ( 
+
+  SELECT manager_id, COUNT(*) AS managed_count 
+
+  FROM employees 
+
+  GROUP BY manager_id 
+
+) e2 ON e1.employee_id = e2.manager_id AND e1.manager_id IS NOT NULL 
+
+WHERE e1.manager_id IS NOT NULL AND e1.employee_id != e2.manager_id  
+
+AND e1.employee_id = e2.managed_count;
+Read More: What is PostgresSQL? 
+34. How do we identify the name of the process that blocks the database resource?
+We use Activity Monitor to view information about the current processes and locks held on SQL Server resources. 
+
+Use stored procedures like sp_who2 
+
+Use DMVs like: sys.dm_exec_requests/sys.dm_tran_locks/sys.dm_os_waiting_tasks 
+35. What is the difference between Commit and Rollback?
+Commit	Rollback
+It stores the modified data permanently during a transaction.	It lets users undo all changes that occurred since the last commit of transaction modifications.
+36. Write a MySQL query so that we get the output the following way.
+Leaf 
+Inner 
+Inner 
+Leaf 
+Root
+The following is the MySQL query:
+
+WITH join_table AS 
+
+( 
+
+SELECT  
+        cur.node,
+        cur.parent,
+        COUNT(next.node) AS num_children
+    
+    FROM
+        tree cur
+        
+    LEFT JOIN
+    
+        tree next ON (next.parent = cur.node) 
+
+    GROUP BY
+        cur.node,
+        cur.parent
+)
+
+SELECT
+    
+    node,
+    
+    CASE
+        WHEN parent IS NULL THEN "Root" 
+        WHEN num_children = 0 THEN "Leaf" 
+
+        ELSE "Inner" 
+
+    END AS label 
+
+FROM  
+
+    join_table  
+
+SELECT  
+
+    node, 
+
+    CASE
+        WHEN parent IS NULL THEN 'Root'
+        WHEN node NOT IN (SELECT parent FROM tree) THEN 'Leaf'
+        WHEN node IN (SELECT parent FROM tree) AND parent IS NOT NULL THEN 'Inner' 
+
+    END AS label  
+
+ from  
+
+    tree 
+37. What are the benefits of using stored procedures?
+A stored procedure can be stored and called multiple times whenever required. Therefore, it promotes faster execution and there is no need to write multiple queries. It also helps to reduce network traffic. rather than writing every single line of code, a to execute the procedure is sent over a network. 
+
+38. Which MySQL query do we use to calculate each product's 30-day moving average of sales?
+We use the Windows function and AVG() function, the following is the MySQL query: 
+
+SELECT 
+
+  product_id, 
+
+  sale_date, 
+
+  sale_amount, 
+
+  AVG(sale_amount) OVER ( 
+
+    PARTITION BY product_id 
+
+    ORDER BY sale_date 
+
+    ROWS BETWEEN 29 PRECEDING AND CURRENT ROW 
+
+  ) AS moving_avg 
+
+FROM 
+
+  sales 
+
+ORDER BY 
+
+  product_id, sale_date; 
+39. Show the MySQL query to find out all the average salaries that is higher than the company’s overall average salary along with the departments.
+SELECT department 
+
+FROM employees 
+
+GROUP BY department 
+
+HAVING AVG(salary) > ( 
+
+  SELECT AVG(salary) 
+
+  FROM employees 
+
+); 
+40. What are the different types of replication servers?
+Transactional replication is a real-time replication from the main database to another database. 
+
+Merge replication is like transactional replication, but changes occur in both publisher and subscriber changes. 
+Snapshot replication takes out the exact state of the main database for a specific moment and replicates it to another database. 
+Peer-to-peer replication is a variation of transaction replication that supports replication across multiple servers. 
+Bidirectional transactional replication replicates data between servers that publish and subscribe to each other’s data. 
+Updatable subscription replication passes the subscriber database changes first to the main database copy before replicating to other subscribers. 
+41. What is the MySQL query to copy all the columns into a new table?
+We use the SELECT INTO statement and the WHERE condition. The following is the query to copy all the columns into a new table: 
+
+SELECT *    
+
+INTO newtable 
+
+FROM oldtable 
+
+WHERE condition 
+42. What are the Magic Tables in MySQL?
+Magic Tables are either invisible tables or virtual tables. We can only see it with the help of Triggers. It lets users hold insert, delete, and updated values during insert, delete, and update.
+
+43. What is the difference between materialized views and non-materialized views?
+Materialized Views	Non-Materialized Views
+It is a logical representation of data that stores the output in a table.	It is a logical representation of data, but it doesn’t store the output in a table.
+It improves the performance, but it needs to be refreshed to keep the information up to date.	It does not let execute the view whenever results are used.
+44. List some drawbacks of MySQL.
+The following are the disadvantages of using MySQL: 
+
+MySQL is inefficient for extremely large-scale databases, 
+Sometimes transactions are not processed effectively. 
+MySQL version below 5.0 does not support the COMMIT and STORED PROCEDURES. 
+Most of its functionality relies on third-party extensions. 
+45. Let's consider that you have an Employee table that only accepts the values that are greater than 0. Write a MySQL query for this.
+For this, we need to use the CHECK constraint while creating the column in the table. 
+
+CREATE Table Employee( 
+
+id int, 
+
+Age int CHECK (Age>0) 
+
+) 
+46. Why do we use a SQL subquery? Write its syntax.
+Subquery is the nested nested inside another SQL query. It is used to retrieve data, which is used in the main query. The following is the syntax of the subquery nested inside the WHERE clause of the main query. The subquery retrieves data from the table based on a specific condition, and this data is used as a filter for the main query. 
+
+SELECT  
+
+  column_name(s)
+  
+FROM  
+
+  table_name 
+
+WHERE  
+
+  column_name operator 
+
+    (SELECT  
+
+        column_name(s) 
+
+    FROM  
+
+        table_name 
+
+    WHERE condition); 
+Must Read: SQL vs. JSON: Key Difference
+47. What Is a Subquery in T-SQL?
+A subquery is a query embedded with the outer query. In T-SQL, it can be used in various statements like SELECT, INSERT, UPDATE, DELETE, FROM, WHERE, or HAVING clauses. 
+
+48. What is the difference between Stored Procedure and Function?
+Stored Procedure	Function
+It is used for processing and manipulating data.	It groups one or more Transact-SQL statements into a logical unit and is stored as an object in the Database Server.
+Supports SELECT and has READ-ONLY Database Access	SQL Server creates an execution plan and stores it in the cache when it is called for the first time.
+It allows to use of functions like Insert, Update, and Delete (DML operations) records in the database table.	SQL Server reuses the plan so that the stored procedure can execute very fast with reliable performance.
+It accepts only input parameters and does not have output parameters.	It cannot be a part of WHERE, HAVING, and SELECT.
+It returns a single value.	It does not return anything
+49. Write a syntax to create a table in MySQL Server.
+By using the CREATE TABLEcommand we can define the table name, column names, and the data type accepted by each column. The syntax to create a table in MySQL server is the following: 
+
+CREATE TABLE table_name ( 
+
+   column_1 datatype, 
+
+   column_2 datatype, 
+
+   column_3 datatype, 
+
+); 
+50. What do you mean by MySQL connector maven?
+It is a JDBC driver for MySQL that enables Java applications to connect to a MySQL database. If you’re creating an application using Java, then we need the MySQL connector Maven to communicate with the MySQL and Java applications. By using this, it eliminates the manual work like configuration and creating a JAR file in the classpath. Java developers only need to insert MySQL dependency into their project pom.xml file, and for other tasks like downloading and managing the JAR file, Maven will take care of it. The following is the code to specify it in the project:
+
+<dependency> 
+
+    <groupId>mysql</groupId> 
+
+    <artifactId>mysql-connector-java</artifactId> 
+
+    <version>8.0.30</version> < Specify the version you need> 
+
+</dependency> 
+Pointer image icon
+Conclusion
+Mastering MySQL opens many golden opportunities in the data-driven world that we live in today. So, whether you aspire to be a data analyst, data scientist, software engineer, database developer, or SQL developer, this comprehensive advanced MySQL interview question can help you tackle the complex question
