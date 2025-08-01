@@ -1,0 +1,150 @@
+1. add below line in /etc/hosts file
+
+172.24.131.41   prodasldap.ascorp.com
+
+172.26.131.37    uatasldap uatasldap.ascorp.com
+
+
+2. take backup of /etc/krb5.conf file and replace file with below  output
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = ASCORP.COM
+ dns_lookup_realm = true
+ dns_lookup_kdc = true
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ ASCORP.COM = {
+  kdc = prodasldap.ascorp.com
+  kdc = prodasldap.ascorp.com
+  admin_server = prodasldap.ascorp.com
+  kdc = prodasldap.ascorp.com
+ }
+
+ prodasldap.ascorp.com = {
+ }
+
+[domain_realm]
+ .ASCORP.COM = ASCORP.COM
+ ASCORP.COM  = ASCORP.COM
+ prodasldap.ascorp.com = prodasldap.ascorp.com
+ .prodasldap.ascorp.com = prodasldap.ascorp.com
+ ascorp.com = ASCORP.COM
+ .ascorp.com = ASCORP.COM
+
+
+3. install samba package and open configuration file /etc/samba/smb.conf and comment below two lines 
+
+; workgroup = MYGROUP
+; server string = Samba Server Version %v
+
+
+add below output in /etc/samba/smb.conf file
+
+   workgroup = ASCORP
+   realm = ASCORP.COM
+   security = ads
+   idmap config * : range = 16777216-33554431
+   winbind separator = +
+   template shell = /bin/bash
+   winbind use default domain = true
+   winbind offline logon = false
+   log level = 2
+   syslog = 0
+   server string = Linux File Server
+   security = ads
+   log file = /var/log/samba/%m
+   max log size = 50
+   printcap name = cups
+   printing = cups
+   winbind enum users = no
+   winbind enum groups = no
+   template homedir =  /home/%D/%U
+   password server = prodasldap.ascorp.com
+
+4. start samba service 
+
+/etc/init.d/smb start
+
+chkconfig smb on 
+
+5. execute authconfig-tui command and select below options
+
+select  use winbind option in user informantion
+
+select  use winbind authentication  in Authencation and  continue with next option 
+
+
+6. net ads join -U toduanil and it will ask password ( Yours@1986)
+
+
+7. start /etc/init.d/winbdind start
+chkconfig winbind on
+
+8. create /etc/pam.d/mysql  file and give mysql ownership
+
+vi /etc/pam.d/mysql
+
+#%PAM-1.0
+auth    required pam_winbind.so
+account         required pam_winbind.so
+
+9.finally give id toduanil
+
+
+###################################MONGO LDAP AUTHENTICATION###################3
+
+Ldap integration for mongo database
+
+implemet same steps from 1 to 7 on mongo server and  follow below steps as well.
+
+1)  Create   /etc/saslauthd.conf   file with below options
+
+ldap_servers: ldap://prodasldap.ascorp.com
+ldap_bind_dn: CN=svc_db_ldap,OU=Service Accounts,OU=Global Resources,DC=ASCORP,DC=COM
+ldap_password: monGo$Vc2
+ldap_auth_method: bind
+ldap_search_base: DC=ASCORP,DC=COM
+ldap_timeout: 10
+ldap_filter: sAMAccountName=%U
+ldap_deref: never
+ldap_scope: sub
+ldap_start_tls: no
+ldap_version: 3
+
+2) kindly add  below options in  /etc/sysconfig/saslauthd  file
+
+   --------------------------------------------------
+   SOCKETDIR=/var/run/saslauthd
+   MECH=ldap
+   FLAGS="-O /etc/saslauthd.conf"
+   --------------------------------------------------
+
+3) Restart "saslauthd" service and enable on boot
+
+   # service saslauthd restart
+  
+   #chckonfig saslauthd on 
+
+4) Test Authentication with AD
+
+   # testsaslauthd -u networkid -p 'password'
+
+   Note: Give the password under single quotes.
+##*********************LDAP**********************
+setParameter=saslauthdPath=/var/run/saslauthd/mux
+setParameter=authenticationMechanisms=PLAIN,SCRAM-SHA-1
+##
+
+
+
+
+
+
